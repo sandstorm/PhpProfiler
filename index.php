@@ -1,3 +1,21 @@
+<?php
+
+$xhprofOutputDirectory = ini_get('xhprof.output_dir');
+
+if (isset($_GET['ack'])) {
+	if (strpos( $_GET['ack'], '_ACK.xhprof') === FALSE) {
+		$newFileName = str_replace('.xhprof', '_ACK.xhprof', $_GET['ack']);
+		rename($xhprofOutputDirectory . '/' . $_GET['ack'], $xhprofOutputDirectory . '/' . $newFileName);
+	}
+	Header('Location: index.php');
+}
+if (isset($_GET['del'])) {
+	if (file_exists($xhprofOutputDirectory . '/' . $_GET['del'])) {
+		unlink($xhprofOutputDirectory . '/' . $_GET['del']);
+	}
+	Header('Location: index.php');
+}
+?>
 <html>
 <head>
 
@@ -8,14 +26,6 @@
 <table>
 
 <?php
-
-$xhprofOutputDirectory = ini_get('xhprof.output_dir');
-
-if (isset($_GET['ack']) && strpos( $_GET['ack'], '_ACK.xhprof') === FALSE) {
-	$newFileName = str_replace('.xhprof', '_ACK.xhprof', $_GET['ack']);
-	rename($xhprofOutputDirectory . '/' . $_GET['ack'], $xhprofOutputDirectory . '/' . $newFileName);
-}
-
 $dir = new DirectoryIterator($xhprofOutputDirectory);
 foreach ($dir as $file) {
 	if ($file->getExtension() === 'xhprof') {
@@ -28,7 +38,11 @@ foreach ($dir as $file) {
 		if (strpos($file->getFilename(), '_ACK.xhprof') === FALSE) {
 			echo '<a href="?ack=' . $file->getFilename() . '">Acknowledge</a>';
 		}
-		echo '</td></tr>';
+		echo '</td>';
+
+		echo '<td><a href="?del=' . $file->getFilename() . '" onclick="return confirm(\'really delete?\')">Delete File!!!</a></td>';
+
+		echo '</tr>';
 	}
 }
 ?>
