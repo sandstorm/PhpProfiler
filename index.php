@@ -32,7 +32,16 @@ table, table th, table td {
 	border-color: gray;
 	border-collapse: collapse;
 	background-color: white;
+	padding:2px;
 }
+body, table {
+	font-family: sans-serif;
+}
+<?php
+
+Customizations::outputCss();
+
+?>
 </style>
 </head>
 <body>
@@ -77,7 +86,7 @@ foreach ($dir as $file) {
 		$desc = '';
 		$runData = $run->get_run($fileWithoutExtension, 'xhprof', $desc);
 
-		Customizations::renderRow($runData);
+		Customizations::renderRow($runData, $file, $fileWithoutExtension);
 
 		echo '</tr>';
 	}
