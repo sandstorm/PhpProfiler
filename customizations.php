@@ -6,7 +6,7 @@ class Customizations {
 
 	static public function getRowHeaders() {
 		return array(
-			'<th colspan="6">hasLayout / Objects / Arrays / Forms / Nesting / Partials</th>',
+			'<th colspan="7">hasLayout / Objects / Arrays / Forms / Nesting / Partials / Sections</th>',
 			'<th colspan="3">No. Text/VH/OA-Nodes</th>',
 			'Time (ms)',
 			'Mem (bytes)');
@@ -29,6 +29,7 @@ class Customizations {
 		self::output($settings['forms'], 'number input');
 		self::output($settings['nestingLevels'], 'number input');
 		self::output($settings['partials'], 'number input');
+		self::output($settings['sections'], 'number input');
 
 		self::output(self::count('#==>.*TextNode::__construct#'), 'number output');
 		self::output(self::count('#==>.*ViewHelperNode::__construct#'), 'number output');
