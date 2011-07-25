@@ -75,18 +75,22 @@ foreach ($dir as $file) {
 		echo '<input type="radio" name="run2" value="' . $fileWithoutExtension . '"></td>';
 		echo '<td><a href="/xhprof/xhprof_html/index.php?run=' . $fileWithoutExtension . '&source=xhprof">' . $file->getFilename() . '</a></td><td>';
 
+		$onclickJs = '';
 		if (strpos($file->getFilename(), '_ACK.xhprof') === FALSE) {
 			echo '<a href="?ack=' . $file->getFilename() . '">ACK</a>';
+		} else {
+			$onclickJs = 'onclick="return confirm(\'really delete?\')"';
 		}
 		echo '</td>';
 
-		echo '<td><a href="?del=' . $file->getFilename() . '" onclick="return confirm(\'really delete?\')">DEL</a></td>';
+
+		echo '<td><a href="?del=' . $file->getFilename() . '" ' . $onclickJs . '>DEL</a></td>';
 
 		$run = new \XHProfRuns_Default();
 		$desc = '';
 		$runData = $run->get_run($fileWithoutExtension, 'xhprof', $desc);
 
-		Customizations::renderRow($runData, $file, $fileWithoutExtension);
+		Customizations::renderRow($runData, $file, str_replace('_ACK', '', $fileWithoutExtension));
 
 		echo '</tr>';
 	}

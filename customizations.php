@@ -8,7 +8,9 @@ class Customizations {
 		return array(
 			'<th colspan="7">hasLayout / Objects / Arrays / Forms / Nesting / Partials / Sections</th>',
 			'<th colspan="3">No. Text/VH/OA-Nodes</th>',
-			'Time (ms)',
+			'<th colspan="2">No. args, ArgDef</th>',
+			'No. Objects',
+			'<th colspan="2"> Time(inline/xhprof) (ms)</th>',
 			'Mem (bytes)');
 	}
 
@@ -35,8 +37,18 @@ class Customizations {
 		self::output(self::count('#==>.*ViewHelperNode::__construct#'), 'number output');
 		self::output(self::count('#==>.*ObjectAccessorNode::__construct#'), 'number output');
 
-		self::output(number_format($runData['main()']['wt']), 'number output summary');
-		self::output(number_format($runData['main()']['mu']), 'number output summary');
+		self::output(self::count('#==>.*Arguments::__construct#'), 'number output');
+		self::output(self::count('#==>.*ArgumentDefinition::__construct#'), 'number output');
+
+		self::output(self::number(self::count('#==>.*__construct#')), 'number output');
+
+		self::output(self::number($settings['time']), 'number output summary');
+		self::output(self::number($runData['main()']['wt']), 'number output summary');
+		self::output(self::number($runData['main()']['pmu']), 'number output summary');
+	}
+
+	static protected function number($number) {
+		return number_format($number, 0, ',', '.');
 	}
 
 	static public function outputCss() {
