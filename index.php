@@ -21,6 +21,16 @@ if (isset($_GET['del'])) {
 	}
 	Header('Location: index.php');
 }
+if (isset($_GET['deleteAllUnAcked'])) {
+	// Main output loop, showing the xhprof runs.
+	$dir = new DirectoryIterator($xhprofOutputDirectory);
+	foreach ($dir as $file) {
+		if ($file->getExtension() === 'xhprof' && strpos($file->getFilename(), 'ACK.xhprof') === FALSE) {
+			unlink($file->getPathName());
+		}
+	}
+	Header('Location: index.php');
+}
 ?>
 <html>
 <head>
@@ -46,6 +56,9 @@ Customizations::outputCss();
 </head>
 <body>
 
+<form action="" method="GET">
+	<input type="text" name="filter" placeholder="Filter" value="<?php echo $_GET['filter'] ?>" /><button type="submit">Go!</button>
+</form>
 <form action="/xhprof/xhprof_html/index.php?source=xhprof" method="GET" target="_blank">
 <table>
 <tr>
@@ -70,6 +83,11 @@ $dir = new DirectoryIterator($xhprofOutputDirectory);
 foreach ($dir as $file) {
 	if ($file->getExtension() === 'xhprof') {
 		$fileWithoutExtension = substr($file->getFilename(), 0, -strlen($file->getExtension()) - 1);
+
+		$run = new \XHProfRuns_Default();
+		$desc = '';
+		$runData = $run->get_run($fileWithoutExtension, 'xhprof', $desc);
+
 		echo '<tr>';
 		echo '<td><input type="radio" name="run1" value="' . $fileWithoutExtension . '">';
 		echo '<input type="radio" name="run2" value="' . $fileWithoutExtension . '"></td>';
@@ -86,10 +104,6 @@ foreach ($dir as $file) {
 
 		echo '<td><a href="?del=' . $file->getFilename() . '" ' . $onclickJs . '>DEL</a></td>';
 
-		$run = new \XHProfRuns_Default();
-		$desc = '';
-		$runData = $run->get_run($fileWithoutExtension, 'xhprof', $desc);
-
 		Customizations::renderRow($runData, $file, str_replace('_ACK', '', $fileWithoutExtension));
 
 		echo '</tr>';
@@ -99,5 +113,7 @@ foreach ($dir as $file) {
 </table>
 <button type="submit">Compare!</button>
 </form>
+
+<a href="?deleteAllUnAcked=1" onclick="return confirm('really delete?')">Delete all un-acknowledged</a>
 </body>
 </html>
