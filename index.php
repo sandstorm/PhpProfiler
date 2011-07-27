@@ -1,12 +1,11 @@
 <?php
+require_once 'config.php';
 
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-
-include_once __DIR__ . '/../xhprof/xhprof_lib/utils/xhprof_lib.php';
-include_once __DIR__ . '/../xhprof/xhprof_lib/utils/xhprof_runs.php';
+include_once $config['xhprofRootDirectory'] . 'xhprof_lib/utils/xhprof_lib.php';
+include_once $config['xhprofRootDirectory'] . 'xhprof_lib/utils/xhprof_runs.php';
 include('customizations.php');
 
-$xhprofOutputDirectory = ini_get('xhprof.output_dir');
+$xhprofOutputDirectory = $config['xhprofOutputDirectory'];
 
 if (isset($_GET['ack'])) {
 	if (strpos( $_GET['ack'], '_ACK.xhprof') === FALSE) {
@@ -25,7 +24,7 @@ if (isset($_GET['deleteAllUnAcked'])) {
 	// Main output loop, showing the xhprof runs.
 	$dir = new DirectoryIterator($xhprofOutputDirectory);
 	foreach ($dir as $file) {
-		if ($file->getExtension() === 'xhprof' && strpos($file->getFilename(), 'ACK.xhprof') === FALSE) {
+		if (substr($file->getFilename(), -7) === '.xhprof' && strpos($file->getFilename(), 'ACK.xhprof') === FALSE) {
 			unlink($file->getPathName());
 		}
 	}
@@ -47,12 +46,27 @@ table, table th, table td {
 body, table {
 	font-family: sans-serif;
 }
+td {
+	cursor: pointer;
+}
+table.highlightmode tr td {
+	opacity: .5;
+	filter: alpha(opacity=50);
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+}
+table.highlightmode tr.highlight td, table.highlightmode td.highlight {
+	opacity: 1;
+	filter: alpha(opacity=100);
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+}
 <?php
 
 Customizations::outputCss();
 
 ?>
 </style>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<script type="text/javascript" src="main.js"></script>
 </head>
 <body>
 
@@ -81,33 +95,35 @@ Customizations::outputCss();
 // Main output loop, showing the xhprof runs.
 $dir = new DirectoryIterator($xhprofOutputDirectory);
 foreach ($dir as $file) {
-	if ($file->getExtension() === 'xhprof') {
-		$fileWithoutExtension = substr($file->getFilename(), 0, -strlen($file->getExtension()) - 1);
-
-		$run = new \XHProfRuns_Default();
-		$desc = '';
-		$runData = $run->get_run($fileWithoutExtension, 'xhprof', $desc);
-
-		echo '<tr>';
-		echo '<td><input type="radio" name="run1" value="' . $fileWithoutExtension . '">';
-		echo '<input type="radio" name="run2" value="' . $fileWithoutExtension . '"></td>';
-		echo '<td><a href="/xhprof/xhprof_html/index.php?run=' . $fileWithoutExtension . '&source=xhprof">' . $file->getFilename() . '</a></td><td>';
-
-		$onclickJs = '';
-		if (strpos($file->getFilename(), '_ACK.xhprof') === FALSE) {
-			echo '<a href="?ack=' . $file->getFilename() . '">ACK</a>';
-		} else {
-			$onclickJs = 'onclick="return confirm(\'really delete?\')"';
-		}
-		echo '</td>';
-
-
-		echo '<td><a href="?del=' . $file->getFilename() . '" ' . $onclickJs . '>DEL</a></td>';
-
-		Customizations::renderRow($runData, $file, str_replace('_ACK', '', $fileWithoutExtension));
-
-		echo '</tr>';
+	if (substr($file->getFilename(), -7) !== '.xhprof') {
+		continue;
 	}
+	$fileWithoutExtension = $file->getBasename('.xhprof');
+
+	$run = new \XHProfRuns_Default($xhprofOutputDirectory);
+	$desc = '';
+	$runData = $run->get_run($fileWithoutExtension, 'xhprof', $desc);
+	Customizations::setCurrentRunData($runData);
+
+	echo Customizations::renderTr($file);
+	echo '<td><input type="radio" name="run1" value="' . $fileWithoutExtension . '">';
+	echo '<input type="radio" name="run2" value="' . $fileWithoutExtension . '"></td>';
+	echo '<td><a href="index.php?run=' . $fileWithoutExtension . '&source=xhprof">' . $file->getFilename() . '</a></td><td>';
+
+	$onclickJs = '';
+	if (strpos($file->getFilename(), '_ACK.xhprof') === FALSE) {
+		echo '<a href="?ack=' . $file->getFilename() . '">ACK</a>';
+	} else {
+		$onclickJs = 'onclick="return confirm(\'really delete?\')"';
+	}
+	echo '</td>';
+
+
+	echo '<td><a href="?del=' . $file->getFilename() . '" ' . $onclickJs . '>DEL</a></td>';
+
+	Customizations::renderRow($file);
+
+	echo '</tr>';
 }
 ?>
 </table>

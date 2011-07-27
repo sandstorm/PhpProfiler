@@ -4,6 +4,10 @@ class Customizations {
 
 	protected static $runData;
 
+	static public function setCurrentRunData(array $runData) {
+		self::$runData = $runData;
+	}
+
 	static public function getRowHeaders() {
 		return array(
 			'<th colspan="7">hasLayout / Objects / Arrays / Forms / Nesting / Partials / Sections</th>',
@@ -14,24 +18,30 @@ class Customizations {
 			'Mem (bytes)');
 	}
 
-	static public function renderRow($runData, $file, $fileWithoutExtension) {
-		self::$runData = $runData;
+	static public function renderTr($file) {
+		$settings = self::getSettingsForFile($file);
+		$trClassName = sprintf('inputvalues-%s-%s-%s-%s-%s-%s-%s',
+			$settings['layout'],
+			$settings['objects'],
+			$settings['arrays'],
+			$settings['forms'],
+			$settings['nestingLevels'],
+			$settings['partials'],
+			$settings['partials']
+		);
 
-		$settingsPath = $file->getPath() . '/' . $fileWithoutExtension . '.settings';
-		if (file_exists($settingsPath)) {
-			$settingsData = file_get_contents($settingsPath);
-			$settings = unserialize($settingsData);
-		} else {
-			$settings = array();
-		}
+		return '<tr class="' . $trClassName . '">';
+	}
 
-		self::output($settings['layout'], 'number input');
-		self::output($settings['objects'], 'number input');
-		self::output($settings['arrays'], 'number input');
-		self::output($settings['forms'], 'number input');
-		self::output($settings['nestingLevels'], 'number input');
-		self::output($settings['partials'], 'number input');
-		self::output($settings['sections'], 'number input');
+	static public function renderRow($file) {
+		$settings = self::getSettingsForFile($file);
+		self::output($settings['layout'], 'number input layout-' . $settings['layout']);
+		self::output($settings['objects'], 'number input objects-' . $settings['objects']);
+		self::output($settings['arrays'], 'number input arrays-' . $settings['arrays']);
+		self::output($settings['forms'], 'number input forms-' . $settings['forms']);
+		self::output($settings['nestingLevels'], 'number input nestingLevels-' . $settings['nestingLevels']);
+		self::output($settings['partials'], 'number input partials-' . $settings['partials']);
+		self::output($settings['sections'], 'number input sections-' . $settings['sections']);
 
 		self::output(self::count('#==>.*TextNode::__construct#'), 'number output');
 		self::output(self::count('#==>.*ViewHelperNode::__construct#'), 'number output');
@@ -43,8 +53,20 @@ class Customizations {
 		self::output(self::number(self::count('#==>.*__construct#')), 'number output');
 
 		self::output(self::number($settings['time']), 'number output summary');
-		self::output(self::number($runData['main()']['wt']), 'number output summary');
-		self::output(self::number($runData['main()']['pmu']), 'number output summary');
+		self::output(self::number(self::$runData['main()']['wt']), 'number output summary');
+		self::output(self::number(self::$runData['main()']['pmu']), 'number output summary');
+	}
+
+	static protected function getSettingsForFile($file) {
+		$fileWithoutExtension = str_replace('_ACK', '', $file->getBasename('.xhprof'));
+		$settingsPath = $file->getPath() . '/' . $fileWithoutExtension . '.settings';
+		if (file_exists($settingsPath)) {
+			$settingsData = file_get_contents($settingsPath);
+			$settings = unserialize($settingsData);
+		} else {
+			$settings = array();
+		}
+		return $settings;
 	}
 
 	static protected function number($number) {
