@@ -46,9 +46,6 @@ table, table th, table td {
 body, table {
 	font-family: sans-serif;
 }
-td {
-	cursor: pointer;
-}
 table.highlightmode tr td {
 	opacity: .5;
 	filter: alpha(opacity=50);
@@ -73,7 +70,7 @@ Customizations::outputCss();
 <form action="" method="GET">
 	<input type="text" name="filter" placeholder="Filter" value="<?php echo $_GET['filter'] ?>" /><button type="submit">Go!</button>
 </form>
-<form action="/xhprof/xhprof_html/index.php?source=xhprof" method="GET" target="_blank">
+<form action="<?php echo $config['xhprofBaseUri']; ?>index.php?source=xhprof" method="GET" target="_blank">
 <table>
 <tr>
 	<th>Diff</th>
@@ -108,7 +105,7 @@ foreach ($dir as $file) {
 	echo Customizations::renderTr($file);
 	echo '<td><input type="radio" name="run1" value="' . $fileWithoutExtension . '">';
 	echo '<input type="radio" name="run2" value="' . $fileWithoutExtension . '"></td>';
-	echo '<td><a href="index.php?run=' . $fileWithoutExtension . '&source=xhprof">' . $file->getFilename() . '</a></td><td>';
+	echo '<td><a href="' . $config['xhprofBaseUri'] . 'index.php?run=' . $fileWithoutExtension . '&source=xhprof">' . $file->getFilename() . '</a></td><td>';
 
 	$onclickJs = '';
 	if (strpos($file->getFilename(), '_ACK.xhprof') === FALSE) {
