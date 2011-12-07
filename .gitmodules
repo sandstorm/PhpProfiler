@@ -1,3 +1,6 @@
 [submodule "lib/xhprof"]
 	path = lib/xhprof
 	url = git://github.com/facebook/xhprof.git
+[submodule "Resources/Private/PHP/xhprof-ui"]
+	path = Resources/Private/PHP/xhprof-ui
+	url = https://github.com/mjphaynes/xhprof-ui.git

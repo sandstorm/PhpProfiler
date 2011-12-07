@@ -65,6 +65,13 @@ class ProfilingRun {
 		file_put_contents($filename, serialize($this));
 	}
 
+	public function getXhprofTrace() {
+		if (is_string($this->xhprofTrace)) {
+			$this->xhprofTrace = unserialize(file_get_contents($this->xhprofTrace));
+		}
+		return $this->xhprofTrace();
+	}
+
 	public function getStartTime() {
 		return \DateTime::createFromFormat('U', (int)$this->startTime);
 	}
