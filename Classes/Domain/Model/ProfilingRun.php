@@ -8,9 +8,13 @@ class ProfilingRun {
 
 	protected $timers;
 
+	protected $timestamps;
+
 	protected $xhprofTrace;
 
 	protected $options = array();
+
+	protected $fullPath;
 
 	public function setOption($key, $value) {
 		$this->options[$key] = $value;
@@ -22,6 +26,7 @@ class ProfilingRun {
 
 	public function start() {
 		$this->timers = array();
+		$this->timestamps = array();
 		$this->startTime = microtime(TRUE);
 		if (function_exists('xhprof_enable')) {
 			xhprof_enable();
@@ -40,13 +45,25 @@ class ProfilingRun {
 		);
 	}
 
+	public function setFullPath($fullPath) {
+		$this->fullPath = $fullPath;
+	}
+
 	public function stopTimer($name) {
-		if (!is_array($this->timers[$name])) {
+		if (!isset($this->timers[$name])) {
 			$this->timers[$name] = array();
 		}
 		$this->timers[$name][] = array(
 			'time' => microtime(TRUE),
 			'start' => FALSE
+		);
+	}
+
+	public function timestamp($name, $data = array()) {
+		$this->timestamps[] = array(
+			'name' => $name,
+			'time' => microtime(TRUE),
+			'data' => $data
 		);
 	}
 
@@ -80,6 +97,17 @@ class ProfilingRun {
 		return $this->timers;
 	}
 
+	public function getTimestamps() {
+		return $this->timestamps;
+	}
+
+	public function remove() {
+		if ($this->fullPath !== NULL) {
+			unlink($this->fullPath);
+			unlink($this->fullPath . '.xhprof');
+		}
+	}
+
 	public function getTimersAsDuration() {
 		$events = array();
 		$currentlyOpenTimers = array();
@@ -93,13 +121,15 @@ class ProfilingRun {
 					$currentlyOpenTimers[$timerName][] = $timerValue;
 				} else {
 					$startTime = array_pop($currentlyOpenTimers[$timerName]);
-					$stopTime = $timerValue['time'];
-					$events[] = array(
-						'start' => $startTime['time'],
-						'stop' => $stopTime,
-						'name' => $timerName,
-						'data' => $startTime['data']
-					);
+					if (is_array($startTime)) {
+						$stopTime = $timerValue['time'];
+						$events[] = array(
+							'start' => $startTime['time'],
+							'stop' => $stopTime,
+							'name' => $timerName,
+							'data' => $startTime['data']
+						);
+					}
 				}
 			}
 		}
@@ -113,6 +143,10 @@ class ProfilingRun {
 			foreach ($t as &$v) {
 				$v['time'] -= $this->startTime;
 			}
+		}
+
+		foreach ($this->timestamps as &$t) {
+			$t['time'] -= $this->startTime;
 		}
 	}
 }
