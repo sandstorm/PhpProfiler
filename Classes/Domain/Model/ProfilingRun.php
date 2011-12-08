@@ -16,6 +16,8 @@ class ProfilingRun {
 
 	protected $fullPath;
 
+	protected $tags = array();
+
 	public function setOption($key, $value) {
 		$this->options[$key] = $value;
 	}
@@ -67,6 +69,15 @@ class ProfilingRun {
 		);
 	}
 
+	public function getTags() {
+		if (!is_array($this->tags)) return array();
+		return $this->tags;
+	}
+
+	public function setTags(array $tags) {
+		$this->tags = $tags;
+	}
+
 	public function stop() {
 		$this->stopTimer('Profiling Run');
 		if (function_exists('xhprof_disable')) {
@@ -76,9 +87,15 @@ class ProfilingRun {
 		$this->convertTimersRelativeToStartTime();
 	}
 
-	public function save($filename) {
-		file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
-		$this->xhprofTrace = $filename . '.xhprof';
+	public function save($filename = NULL) {
+		if ($filename === NULL) {
+			if ($this->fullPath === NULL) throw new \Exception('TODO: Full path not set');
+			$filename = $this->fullPath;
+		}
+		if (is_array($this->xhprofTrace)) {
+			file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
+			$this->xhprofTrace = $filename . '.xhprof';
+		}
 		file_put_contents($filename, serialize($this));
 	}
 
@@ -86,8 +103,9 @@ class ProfilingRun {
 		if (is_string($this->xhprofTrace)) {
 			$this->xhprofTrace = unserialize(file_get_contents($this->xhprofTrace));
 		}
-		return $this->xhprofTrace();
+		return $this->xhprofTrace;
 	}
+
 
 	public function getStartTime() {
 		return \DateTime::createFromFormat('U', (int)$this->startTime);
