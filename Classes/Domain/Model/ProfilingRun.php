@@ -43,7 +43,8 @@ class ProfilingRun {
 		$this->timers[$name][] = array(
 			'time' => microtime(TRUE),
 			'data' => $data,
-			'start' => TRUE
+			'start' => TRUE,
+			'mem' => memory_get_peak_usage(TRUE)
 		);
 	}
 
@@ -57,15 +58,41 @@ class ProfilingRun {
 		}
 		$this->timers[$name][] = array(
 			'time' => microtime(TRUE),
-			'start' => FALSE
+			'start' => FALSE,
+			'mem' => memory_get_peak_usage(TRUE)
 		);
+	}
+
+	public function getMemory() {
+		$output = array();
+		foreach ($this->timestamps as $t) {
+			$output[] = array(
+				'time' => $t['time'],
+				'mem' => $t['mem']
+			);
+		}
+		foreach ($this->timers as $tmp) {
+			foreach ($tmp as $t) {
+				$output[] = array(
+					'time' => $t['time'],
+					'mem' => $t['mem']
+				);
+			}
+		}
+
+		// now, sort events by start time
+		usort($output, function($a, $b) {
+			return (int)(1000*$a['time'] - 1000*$b['time']);
+		});
+		return $output;
 	}
 
 	public function timestamp($name, $data = array()) {
 		$this->timestamps[] = array(
 			'name' => $name,
 			'time' => microtime(TRUE),
-			'data' => $data
+			'data' => $data,
+			'mem' => memory_get_peak_usage(TRUE)
 		);
 	}
 
