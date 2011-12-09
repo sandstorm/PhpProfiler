@@ -151,8 +151,10 @@ class ProfilingRun {
 				}
 			}
 		}
-		//var_dump($events);
-		//die();
+		// now, sort events by start time
+		usort($events, function($a, $b) {
+			return (int)(1000*$a['start'] - 1000*$b['start']);
+		});
 		return $events;
 	}
 
