@@ -1,5 +1,5 @@
 <?php
-namespace SandstormMedia\PhpProfiler;
+namespace SandstormMedia\PhpProfiler\Domain\Model;
 
 /*                                                                        *
  * This script belongs to the FLOW3 package "SandstormMedia.PhpProfiler". *
@@ -12,21 +12,24 @@ namespace SandstormMedia\PhpProfiler;
  *                                                                        */
 
 
-use \TYPO3\FLOW3\Package\Package as BasePackage;
-
 /**
- * FLOW3 Package Bootstrap
+ * Empty Profiling Run; provides method stubs which do not do anything.
+ *
+ * This is needed such that the user can do ...getRun()->startTimer() even
+ * when profiling is disabled.
  */
-class Package extends BasePackage {
+class EmptyProfilingRun {
 
-	/**
-	 * Disable object management for this package.
-	 * @var boolean
-	 */
-	protected $objectManagementEnabled = FALSE;
+	public function setOption($key, $value) {
+	}
 
-	public function boot(\TYPO3\FLOW3\Core\Bootstrap $bootstrap) {
-		define('XHPROF_ROOT', $this->getResourcesPath() . 'Private/PHP/xhprof-ui/');
+	public function startTimer($name, $data = array()) {
+	}
+
+	public function stopTimer($name) {
+	}
+
+	public function timestamp($name, $data = array()) {
 	}
 }
 ?>
