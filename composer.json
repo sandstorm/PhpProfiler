@@ -1,9 +1,13 @@
 {
 	"name": "sandstormmedia/phpprofiler",
 	"version": "1.0.0",
-	"type": "FLOW3Package",
+	"type": "flow3-package",
 	"require": {
 		"php": ">=5.3.0",
 		"SandstormMedia/Flow3ComposerConnector": "1.0.0-dev"
+	},
+	"extra": {
+		"packageKey": "SandstormMedia.PhpProfiler",
+		"suggestedLocation": "Application"
 	}
 }
