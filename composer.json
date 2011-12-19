@@ -3,8 +3,7 @@
 	"version": "1.0.0",
 	"type": "flow3-package",
 	"require": {
-		"php": ">=5.3.0",
-		"SandstormMedia/Flow3ComposerConnector": "1.0.0-dev"
+		"php": ">=5.3.0"
 	},
 	"extra": {
 		"packageKey": "SandstormMedia.PhpProfiler",
