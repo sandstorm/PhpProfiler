@@ -1,6 +1,6 @@
 {
-	"name": "SandstormMedia/PhpProfiler",
+	"name": "sandstormmedia/phpprofiler",
 	"require": {
 		"php": ">=5.3.0"
-	},
+	}
 }
