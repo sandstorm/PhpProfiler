@@ -25,6 +25,13 @@ class ProfilingRun extends EmptyProfilingRun {
 	protected $startTime;
 
 	/**
+	 * Name of the currently active Timer
+	 *
+	 * @var string
+	 */
+	protected $activeTimer = null;
+
+	/**
 	 * Collected timers. Is an associative array:
 	 * key: Timer Name
 	 * value: array of the "events" for the current timer, an event can be either "start" or "stop".
@@ -211,8 +218,10 @@ class ProfilingRun extends EmptyProfilingRun {
 			'time' => microtime(TRUE),
 			'data' => $data,
 			'start' => TRUE,
-			'mem' => memory_get_peak_usage(TRUE)
+			'mem' => memory_get_peak_usage(TRUE),
+			'parent' => $this->activeTimer
 		);
+		$this->activeTimer = $name;
 	}
 
 	/**
@@ -225,6 +234,11 @@ class ProfilingRun extends EmptyProfilingRun {
 		if (!isset($this->timers[$name])) {
 			$this->timers[$name] = array();
 		}
+
+		$lastTimer = end($this->timers[$name]);
+		if(isset($lastTimer["parent"]));
+			$this->activeTimer = $lastTimer["parent"];
+
 		$this->timers[$name][] = array(
 			'time' => microtime(TRUE),
 			'start' => FALSE,
@@ -296,6 +310,8 @@ class ProfilingRun extends EmptyProfilingRun {
 		if (is_string($this->xhprofTrace)) {
 			$this->xhprofTrace = unserialize(file_get_contents($this->xhprofTrace));
 		}
+		if(!is_array($this->xhprofTrace))
+			return array();
 		return $this->xhprofTrace;
 	}
 
@@ -319,9 +335,10 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * 'name'  => (string) Name of the timer
 	 * 'data'  => (array) additional payload which has been specified in $this->startTimer()
 	 *
+	 * @param boolean $asTree Set this to true to get the timers as an Tree
 	 * @return array
 	 */
-	public function getTimersAsDuration() {
+	public function getTimersAsDuration($asTree = false) {
 		$events = array();
 		$currentlyOpenTimers = array();
 
@@ -337,8 +354,10 @@ class ProfilingRun extends EmptyProfilingRun {
 						$events[] = array(
 							'start' => $startTime['time'],
 							'stop' => $stopTime,
+							'time' => $stopTime - $startTime["time"],
 							'name' => $timerName,
-							'data' => $startTime['data']
+							'data' => $startTime['data'],
+							'parent' => $startTime['parent']
 						);
 					}
 				}
@@ -349,8 +368,23 @@ class ProfilingRun extends EmptyProfilingRun {
 		usort($events, function($a, $b) {
 			return (int)(1000*$a['start'] - 1000*$b['start']);
 		});
+
+		if($asTree){
+			$events = $this->parseTree($events, $this->activeTimer);
+		}
+
 		return $events;
 	}
 
-
+	function parseTree($events, $root = null) {
+        $return = array();
+        foreach($events as $child => $event) {
+            if($event["parent"] == $root) {
+                unset($events[$child]);
+                $event["children"] = $this->parseTree($events, $event["name"]);
+                $return[] = $event;
+            }
+        }
+        return empty($return) ? null : $return;    
+    }
 }
