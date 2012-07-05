@@ -24,9 +24,5 @@ class Package extends BasePackage {
 	 * @var boolean
 	 */
 	protected $objectManagementEnabled = FALSE;
-
-	public function boot(\TYPO3\FLOW3\Core\Bootstrap $bootstrap) {
-		define('XHPROF_ROOT', $this->getResourcesPath() . 'Private/PHP/xhprof-ui/');
-	}
 }
 ?>
