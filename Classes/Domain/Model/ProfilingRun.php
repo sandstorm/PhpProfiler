@@ -199,7 +199,9 @@ class ProfilingRun extends EmptyProfilingRun {
 	public function remove() {
 		if ($this->fullPath !== NULL) {
 			unlink($this->fullPath);
-			unlink($this->fullPath . '.xhprof');
+			if (file_exists($this->fullPath . '.xhprof')) {
+				unlink($this->fullPath . '.xhprof');
+			}
 		}
 	}
 
@@ -385,6 +387,6 @@ class ProfilingRun extends EmptyProfilingRun {
                 $return[] = $event;
             }
         }
-        return empty($return) ? null : $return;    
+        return empty($return) ? null : $return;
     }
 }
