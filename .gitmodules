@@ -1,3 +1,0 @@
-[submodule "Resources/Private/PHP/xhprof-ui"]
-	path = Resources/Private/PHP/xhprof-ui
-	url = https://github.com/skurfuerst/xhprof-ui.git
