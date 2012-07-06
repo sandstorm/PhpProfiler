@@ -184,11 +184,27 @@ class ProfilingRun extends EmptyProfilingRun {
 		file_put_contents($filename, serialize($this));
 	}
 
+	protected $currentCalculationHash = NULL;
+	protected $cachedCalculationResults = NULL;
+
+	public function setCachedCalculationResults($currentCalculationHash, $cachedCalculationResults) {
+		$this->currentCalculationHash = $currentCalculationHash;
+		$this->cachedCalculationResults = $cachedCalculationResults;
+	}
+
+	public function getCachedCalculationResults($currentCalculationHash) {
+		if ($currentCalculationHash === $this->currentCalculationHash) {
+			return $this->cachedCalculationResults;
+		}
+		return array();
+	}
+
 	/**
 	 * @param string $fullPath
 	 */
 	public function setFullPath($fullPath) {
 		$this->fullPath = $fullPath;
+		$this->xhprofTrace = $fullPath . '.xhprof';
 	}
 
 	/**
@@ -270,6 +286,10 @@ class ProfilingRun extends EmptyProfilingRun {
 		return \DateTime::createFromFormat('U', (int)$this->startTime);
 	}
 
+	public function getStartTimeAsFloat() {
+		return $this->startTime;
+	}
+
 	/**
 	 * Get memory consumption. Returned is a sorted-by-time array
 	 * where each array element is again an array with the following structure:
@@ -309,7 +329,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * @return array
 	 */
 	public function getXhprofTrace() {
-		if (is_string($this->xhprofTrace)) {
+		if (is_string($this->xhprofTrace) && file_exists($this->xhprofTrace)) {
 			$this->xhprofTrace = unserialize(file_get_contents($this->xhprofTrace));
 		}
 		if(!is_array($this->xhprofTrace))
