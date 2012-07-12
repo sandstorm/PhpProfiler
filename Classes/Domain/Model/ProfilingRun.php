@@ -178,10 +178,10 @@ class ProfilingRun extends EmptyProfilingRun {
 			$filename = $this->fullPath;
 		}
 		if (is_array($this->xhprofTrace)) {
-			file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
+			@file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
 			$this->xhprofTrace = $filename . '.xhprof';
 		}
-		file_put_contents($filename, serialize($this));
+		@file_put_contents($filename, serialize($this));
 	}
 
 	protected $currentCalculationHash = NULL;
