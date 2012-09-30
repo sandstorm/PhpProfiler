@@ -1,12 +1,13 @@
 {
-	"name": "sandstormmedia/phpprofiler",
-	"version": "1.0.0",
-	"type": "flow3-package",
-	"require": {
-		"php": ">=5.3.0"
-	},
-	"extra": {
-		"packageKey": "SandstormMedia.PhpProfiler",
-		"suggestedLocation": "Application"
-	}
+   "name":"sandstormmedia/phpprofiler",
+   "type":"flow3-package",
+   "description":"",
+   "version":"",
+   "require":{
+   },
+   "autoload":{
+      "psr-0":{
+         "SandstormMedia\\PhpProfiler":"Classes"
+      }
+   }
 }
