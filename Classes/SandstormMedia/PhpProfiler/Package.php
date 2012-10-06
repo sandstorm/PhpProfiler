@@ -12,7 +12,7 @@ namespace SandstormMedia\PhpProfiler;
  *                                                                        */
 
 
-use \TYPO3\FLOW3\Package\Package as BasePackage;
+use \TYPO3\Flow\Package\Package as BasePackage;
 
 /**
  * FLOW3 Package Bootstrap
