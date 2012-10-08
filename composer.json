@@ -1,13 +1,26 @@
 {
-   "name":"sandstormmedia/phpprofiler",
-   "type":"flow3-package",
-   "description":"",
-   "version":"",
-   "require":{
-   },
-   "autoload":{
-      "psr-0":{
-         "SandstormMedia\\PhpProfiler":"Classes"
-      }
-   }
+	"name":"sandstorm/phpprofiler",
+	"type":"typo3-flow-package",
+	"description":"Base package for collecting timers and xhprof traces. To be used with sandstorm|plumber for visualization.",
+	"version":"1.0",
+	"require":{
+	},
+	"authors": [
+		{
+			"name": "Sebastian Kurfürst",
+			"homepage": "http://sandstorm-media.de",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/sandstorm/Plumber/issues",
+		"irc": "irc://irc.freenode.net/flow",
+		"source": "https://github.com/sandstorm/Plumber"
+	},
+	"license": "GPL-3.0+",
+	"autoload":{
+		"psr-0":{
+			"Sandstorm\\PhpProfiler":"Classes"
+		}
+	}
 }
