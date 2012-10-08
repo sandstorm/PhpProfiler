@@ -2,7 +2,7 @@
 	"name":"sandstorm/phpprofiler",
 	"type":"typo3-flow-package",
 	"description":"Base package for collecting timers and xhprof traces. To be used with sandstorm|plumber for visualization.",
-	"version":"1.0",
+	"version":"1.0.0",
 	"require":{
 	},
 	"authors": [
