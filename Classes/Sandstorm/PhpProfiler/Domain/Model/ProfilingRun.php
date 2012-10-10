@@ -254,8 +254,9 @@ class ProfilingRun extends EmptyProfilingRun {
 		}
 
 		$lastTimer = end($this->timers[$name]);
-		if(isset($lastTimer["parent"]));
-			$this->activeTimer = $lastTimer["parent"];
+		if (isset($lastTimer['parent'])) {
+			$this->activeTimer = $lastTimer['parent'];
+		}
 
 		$this->timers[$name][] = array(
 			'time' => microtime(TRUE),
@@ -332,8 +333,10 @@ class ProfilingRun extends EmptyProfilingRun {
 		if (is_string($this->xhprofTrace) && file_exists($this->xhprofTrace)) {
 			$this->xhprofTrace = unserialize(file_get_contents($this->xhprofTrace));
 		}
-		if(!is_array($this->xhprofTrace))
+		if (!is_array($this->xhprofTrace)) {
 			return array();
+		}
+
 		return $this->xhprofTrace;
 	}
 
@@ -360,7 +363,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * @param boolean $asTree Set this to true to get the timers as an Tree
 	 * @return array
 	 */
-	public function getTimersAsDuration($asTree = false) {
+	public function getTimersAsDuration($asTree = FALSE) {
 		$events = array();
 		$currentlyOpenTimers = array();
 
@@ -376,7 +379,7 @@ class ProfilingRun extends EmptyProfilingRun {
 						$events[] = array(
 							'start' => $startTime['time'],
 							'stop' => $stopTime,
-							'time' => $stopTime - $startTime["time"],
+							'time' => $stopTime - $startTime['time'],
 							'name' => $timerName,
 							'data' => $startTime['data'],
 							'parent' => $startTime['parent']
@@ -391,22 +394,22 @@ class ProfilingRun extends EmptyProfilingRun {
 			return (int)(1000*$a['start'] - 1000*$b['start']);
 		});
 
-		if($asTree){
+		if ($asTree === TRUE) {
 			$events = $this->parseTree($events, $this->activeTimer);
 		}
 
 		return $events;
 	}
 
-	function parseTree($events, $root = null) {
-        $return = array();
-        foreach($events as $child => $event) {
-            if($event["parent"] == $root) {
+	protected function parseTree($events, $root = NULL) {
+        $returnArray = array();
+        foreach ($events as $child => $event) {
+            if (isset($event['parent']) && $event['parent'] === $root) {
                 unset($events[$child]);
-                $event["children"] = $this->parseTree($events, $event["name"]);
-                $return[] = $event;
+                $event['children'] = $this->parseTree($events, $event['name']);
+                $returnArray[] = $event;
             }
         }
-        return empty($return) ? null : $return;
+        return empty($returnArray) ? NULL : $returnArray;
     }
 }
