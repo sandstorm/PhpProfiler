@@ -115,7 +115,9 @@ class Profiler {
 	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun the profiling run or NULL if none is running
 	 */
 	public function stop() {
-		if (!$this->currentlyRunningProfilingRun) return;
+		if (!$this->currentlyRunningProfilingRun) {
+			return;
+		}
 		$this->currentlyRunningProfilingRun->stop();
 
 		$run = $this->currentlyRunningProfilingRun;
@@ -129,7 +131,9 @@ class Profiler {
 	 * @param Domain\Model\ProfilingRun $run
 	 */
 	public function save(Domain\Model\ProfilingRun $run) {
-		if (!isset($this->configuration['profilePath'])) throw new \Exception('Profiling path not set');
+		if (!isset($this->configuration['profilePath'])) {
+			throw new \Exception('Profiling path not set');
+		}
 
 		$filename = $this->configuration['profilePath'] . '/' . microtime(TRUE) . '.profile';
 		$run->save($filename);

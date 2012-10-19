@@ -29,7 +29,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	 *
 	 * @var string
 	 */
-	protected $activeTimer = null;
+	protected $activeTimer = NULL;
 
 	/**
 	 * Collected timers. Is an associative array:
@@ -114,7 +114,10 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * @api
 	 */
 	public function getTags() {
-		if (!is_array($this->tags)) return array();
+		if (!is_array($this->tags)) {
+			return array();
+		}
+
 		return $this->tags;
 	}
 
@@ -174,7 +177,9 @@ class ProfilingRun extends EmptyProfilingRun {
 	 */
 	public function save($filename = NULL) {
 		if ($filename === NULL) {
-			if ($this->fullPath === NULL) throw new \Exception('TODO: Full path not set');
+			if ($this->fullPath === NULL) {
+				throw new \Exception('TODO: Full path not set');
+			}
 			$filename = $this->fullPath;
 		}
 		if (is_array($this->xhprofTrace)) {
@@ -317,9 +322,9 @@ class ProfilingRun extends EmptyProfilingRun {
 			}
 		}
 
-		// now, sort events by start time
+			// now, sort events by start time
 		usort($output, function($a, $b) {
-			return (int)(1000*$a['time'] - 1000*$b['time']);
+			return (int)(1000 * $a['time'] - 1000 * $b['time']);
 		});
 		return $output;
 	}
@@ -389,9 +394,9 @@ class ProfilingRun extends EmptyProfilingRun {
 			}
 		}
 
-		// now, sort events by start time
+			// now, sort events by start time
 		usort($events, function($a, $b) {
-			return (int)(1000*$a['start'] - 1000*$b['start']);
+			return (int)(1000 * $a['start'] - 1000 * $b['start']);
 		});
 
 		if ($asTree === TRUE) {
@@ -402,14 +407,16 @@ class ProfilingRun extends EmptyProfilingRun {
 	}
 
 	protected function parseTree($events, $root = NULL) {
-        $returnArray = array();
-        foreach ($events as $child => $event) {
-            if (isset($event['parent']) && $event['parent'] === $root) {
-                unset($events[$child]);
-                $event['children'] = $this->parseTree($events, $event['name']);
-                $returnArray[] = $event;
-            }
-        }
-        return empty($returnArray) ? NULL : $returnArray;
-    }
+		$returnArray = array();
+		foreach ($events as $child => $event) {
+			if (isset($event['parent']) && $event['parent'] === $root) {
+				unset($events[$child]);
+				$event['children'] = $this->parseTree($events, $event['name']);
+				$returnArray[] = $event;
+			}
+		}
+		return empty($returnArray) ? NULL : $returnArray;
+	}
 }
+
+?>
