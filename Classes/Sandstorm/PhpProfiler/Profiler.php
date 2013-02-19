@@ -2,7 +2,7 @@
 namespace Sandstorm\PhpProfiler;
 
 /*                                                                        *
- * This script belongs to the FLOW3 package "Sandstorm.PhpProfiler". *
+ * This script belongs to the TYPO3 Flow package "Sandstorm.PhpProfiler". *
  *                                                                        *
  * It is free software; you can redistribute it and/or modify it under    *
  * the terms of the GNU General Public License, either version 3 of the   *
@@ -99,7 +99,9 @@ class Profiler {
 	}
 
 	/**
-	 * Stop run and save it afterwards
+	 * Stop run and save it afterwards.
+	 *
+	 * @return void
 	 * @api
 	 */
 	public function stopAndSave() {
@@ -116,7 +118,7 @@ class Profiler {
 	 */
 	public function stop() {
 		if (!$this->currentlyRunningProfilingRun) {
-			return;
+			return NULL;
 		}
 		$this->currentlyRunningProfilingRun->stop();
 
@@ -129,14 +131,15 @@ class Profiler {
 	 * Save a profiling run.
 	 *
 	 * @param Domain\Model\ProfilingRun $run
+	 * @return void
 	 */
 	public function save(Domain\Model\ProfilingRun $run) {
 		if (!isset($this->configuration['profilePath'])) {
 			throw new \Exception('Profiling path not set');
 		}
 
-		$filename = $this->configuration['profilePath'] . '/' . microtime(TRUE) . '.profile';
-		$run->save($filename);
+		$pathAndFilename = $this->configuration['profilePath'] . '/' . microtime(TRUE) . '.profile';
+		$run->save($pathAndFilename);
 	}
 }
 ?>

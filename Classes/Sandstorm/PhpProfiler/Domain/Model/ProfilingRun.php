@@ -2,7 +2,7 @@
 namespace Sandstorm\PhpProfiler\Domain\Model;
 
 /*                                                                        *
- * This script belongs to the FLOW3 package "Sandstorm.PhpProfiler". *
+ * This script belongs to the TYPO3 Flow package "Sandstorm.PhpProfiler". *
  *                                                                        *
  * It is free software; you can redistribute it and/or modify it under    *
  * the terms of the GNU General Public License, either version 3 of the   *
@@ -11,6 +11,7 @@ namespace Sandstorm\PhpProfiler\Domain\Model;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use Sandstorm\Plumber\Exception;
 
 /**
  * Profiling run Domain Model
@@ -88,13 +89,24 @@ class ProfilingRun extends EmptyProfilingRun {
 	 *
 	 * @var string
 	 */
-	protected $fullPath;
+	protected $pathAndFilename;
+
+	/**
+	 * @var string
+	 */
+	protected $currentCalculationHash;
+
+	/**
+	 * @var array
+	 */
+	protected $cachedCalculationResults;
 
 	/**
 	 * Set an option.
 	 *
 	 * @param string $key
 	 * @param mixed $value
+	 * @return void
 	 * @api
 	 */
 	public function setOption($key, $value) {
@@ -102,6 +114,8 @@ class ProfilingRun extends EmptyProfilingRun {
 	}
 
 	/**
+	 * Returns all options.
+	 *
 	 * @return array
 	 * @api
 	 */
@@ -110,6 +124,8 @@ class ProfilingRun extends EmptyProfilingRun {
 	}
 
 	/**
+	 * Returns all tags for this run.
+	 *
 	 * @return array
 	 * @api
 	 */
@@ -122,7 +138,10 @@ class ProfilingRun extends EmptyProfilingRun {
 	}
 
 	/**
+	 * Set tags for this run.
+	 *
 	 * @param array $tags
+	 * @return void
 	 * @api
 	 */
 	public function setTags(array $tags) {
@@ -131,6 +150,8 @@ class ProfilingRun extends EmptyProfilingRun {
 
 	/**
 	 * Start to record this profiling run
+	 *
+	 * @return void
 	 */
 	public function start() {
 		$this->timers = array();
@@ -144,6 +165,8 @@ class ProfilingRun extends EmptyProfilingRun {
 
 	/**
 	 * Stop this profiling run recording
+	 *
+	 * @return void
 	 */
 	public function stop() {
 		$this->stopTimer('Profiling Run');
@@ -157,9 +180,11 @@ class ProfilingRun extends EmptyProfilingRun {
 	/**
 	 * Helper which converts the timer values relative to the start time.
 	 * Is called automatically on stop().
+	 *
+	 * @return void
 	 */
 	protected function convertTimersRelativeToStartTime() {
-		foreach ($this->timers as $name => &$t) {
+		foreach ($this->timers as &$t) {
 			foreach ($t as &$v) {
 				$v['time'] -= $this->startTime;
 			}
@@ -171,16 +196,18 @@ class ProfilingRun extends EmptyProfilingRun {
 	}
 
 	/**
-	 * Save this profiling to disk
+	 * Save this profiling run to disk
 	 *
 	 * @param string $filename
+	 * @return void
+	 * @throws \Sandstorm\Plumber\Exception
 	 */
 	public function save($filename = NULL) {
 		if ($filename === NULL) {
-			if ($this->fullPath === NULL) {
-				throw new \Exception('TODO: Full path not set');
+			if ($this->pathAndFilename === NULL) {
+				throw new Exception('The path and filename are not set.', 1361305872);
 			}
-			$filename = $this->fullPath;
+			$filename = $this->pathAndFilename;
 		}
 		if (is_array($this->xhprofTrace)) {
 			@file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
@@ -189,16 +216,26 @@ class ProfilingRun extends EmptyProfilingRun {
 		@file_put_contents($filename, serialize($this));
 	}
 
-	protected $currentCalculationHash = NULL;
-	protected $cachedCalculationResults = NULL;
-
-	public function setCachedCalculationResults($currentCalculationHash, $cachedCalculationResults) {
+	/**
+	 * Set calculation result cache.
+	 *
+	 * @param string $currentCalculationHash
+	 * @param array $cachedCalculationResults
+	 * @return void
+	 */
+	public function setCachedCalculationResults($currentCalculationHash, array $cachedCalculationResults) {
 		$this->currentCalculationHash = $currentCalculationHash;
 		$this->cachedCalculationResults = $cachedCalculationResults;
 	}
 
-	public function getCachedCalculationResults($currentCalculationHash) {
-		if ($currentCalculationHash === $this->currentCalculationHash) {
+	/**
+	 * Fetches the cached calculation results, if the hash equals the stored one.
+	 *
+	 * @param string $calculationHash
+	 * @return array
+	 */
+	public function getCachedCalculationResults($calculationHash) {
+		if ($calculationHash === $this->currentCalculationHash) {
 			return $this->cachedCalculationResults;
 		}
 		return array();
@@ -206,22 +243,24 @@ class ProfilingRun extends EmptyProfilingRun {
 
 	/**
 	 * @param string $fullPath
+	 * @return void
 	 */
-	public function setFullPath($fullPath) {
-		$this->fullPath = $fullPath;
+	public function setPathAndFilename($fullPath) {
+		$this->pathAndFilename = $fullPath;
 		$this->xhprofTrace = $fullPath . '.xhprof';
 	}
 
 	/**
 	 * Remove this profiling run.
 	 *
+	 * @return void
 	 * @api
 	 */
 	public function remove() {
-		if ($this->fullPath !== NULL) {
-			unlink($this->fullPath);
-			if (file_exists($this->fullPath . '.xhprof')) {
-				unlink($this->fullPath . '.xhprof');
+		if ($this->pathAndFilename !== NULL) {
+			unlink($this->pathAndFilename);
+			if (file_exists($this->pathAndFilename . '.xhprof')) {
+				unlink($this->pathAndFilename . '.xhprof');
 			}
 		}
 	}
@@ -231,9 +270,10 @@ class ProfilingRun extends EmptyProfilingRun {
 	 *
 	 * @param string $name
 	 * @param array $data
+	 * @return void
 	 * @api
 	 */
-	public function startTimer($name, $data = array()) {
+	public function startTimer($name, array $data = array()) {
 		if (!isset($this->timers[$name])) {
 			$this->timers[$name] = array();
 		}
@@ -251,6 +291,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * Stop a timer
 	 *
 	 * @param string $name
+	 * @return void
 	 * @api
 	 */
 	public function stopTimer($name) {
@@ -275,8 +316,9 @@ class ProfilingRun extends EmptyProfilingRun {
 	 *
 	 * @param string $name
 	 * @param array $data
+	 * @return void
 	 */
-	public function timestamp($name, $data = array()) {
+	public function timestamp($name, array $data = array()) {
 		$this->timestamps[] = array(
 			'name' => $name,
 			'time' => microtime(TRUE),
@@ -286,12 +328,19 @@ class ProfilingRun extends EmptyProfilingRun {
 	}
 
 	/**
+	 * Returns the start time of this run as a DateTime.
+	 *
 	 * @return \DateTime the start time
 	 */
 	public function getStartTime() {
 		return \DateTime::createFromFormat('U', (int)$this->startTime);
 	}
 
+	/**
+	 * Returns the start time of this run as a float
+	 *
+	 * @return float
+	 */
 	public function getStartTimeAsFloat() {
 		return $this->startTime;
 	}
@@ -366,7 +415,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * 'data'  => (array) additional payload which has been specified in $this->startTimer()
 	 *
 	 * @param boolean $asTree Set this to true to get the timers as an Tree
-	 * @return array
+	 * @return array|NULL
 	 */
 	public function getTimersAsDuration($asTree = FALSE) {
 		$events = array();
@@ -400,18 +449,25 @@ class ProfilingRun extends EmptyProfilingRun {
 		});
 
 		if ($asTree === TRUE) {
-			$events = $this->parseTree($events, $this->activeTimer);
+			$events = $this->convertToTree($events, $this->activeTimer);
 		}
 
 		return $events;
 	}
 
-	protected function parseTree($events, $root = NULL) {
+	/**
+	 * Converts the given $events array into a tree structure.
+	 *
+	 * @param array $events
+	 * @param mixed $root
+	 * @return array|NULL
+	 */
+	protected function convertToTree(array $events, $root = NULL) {
 		$returnArray = array();
 		foreach ($events as $child => $event) {
 			if (isset($event['parent']) && $event['parent'] === $root) {
 				unset($events[$child]);
-				$event['children'] = $this->parseTree($events, $event['name']);
+				$event['children'] = $this->convertToTree($events, $event['name']);
 				$returnArray[] = $event;
 			}
 		}
