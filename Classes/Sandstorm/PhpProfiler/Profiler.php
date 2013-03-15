@@ -11,8 +11,14 @@ namespace Sandstorm\PhpProfiler;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Core\Bootstrap;
+use TYPO3\Flow\Configuration\ConfigurationManager;
+
 /**
  * PHP Profiler
+ *
+ * @Flow\Proxy(false)
  */
 class Profiler {
 
@@ -27,9 +33,9 @@ class Profiler {
 	protected $currentlyRunningProfilingRun;
 
 	/**
-	 * @var array
+	 * @var Bootstrap
 	 */
-	protected $configuration = array();
+	protected $bootstrap;
 
 	/**
 	 * An "empty" profiling run; which does not execute anything and
@@ -40,7 +46,7 @@ class Profiler {
 	protected $emptyProfilingRun;
 
 	/**
-	 * Singleton.
+	 * Set up an EmptyProfilingRun
 	 */
 	protected function __construct() {
 		$this->emptyProfilingRun = new Domain\Model\EmptyProfilingRun();
@@ -52,23 +58,19 @@ class Profiler {
 	 */
 	public static function getInstance() {
 		if (self::$instance === NULL) {
-			self::$instance = new Profiler();
+			self::$instance = new self();
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * Set configuration options for the profiler. Currently supported
-	 * configuration options:
+	 * Set the bootstrap, needed to retrieve settings later.
 	 *
-	 * - profilePath: Directory where profiles are stored
-	 *
-	 * @param string $key
-	 * @param string $value
-	 * @api
+	 * @param Bootstrap $bootstrap
+	 * @return void
 	 */
-	public function setConfiguration($key, $value) {
-		$this->configuration[$key] = $value;
+	public function setBootstrap(Bootstrap $bootstrap) {
+		$this->bootstrap = $bootstrap;
 	}
 
 	/**
@@ -79,7 +81,7 @@ class Profiler {
 	 */
 	public function start() {
 		if ($this->currentlyRunningProfilingRun !== NULL) {
-			throw new \Exception('Profiling already started');
+			throw new \RuntimeException('Profiling already started', 1363337740);
 		}
 		$this->currentlyRunningProfilingRun = new Domain\Model\ProfilingRun();
 		$this->currentlyRunningProfilingRun->start();
@@ -134,12 +136,12 @@ class Profiler {
 	 * @return void
 	 */
 	public function save(Domain\Model\ProfilingRun $run) {
-		if (!isset($this->configuration['profilePath'])) {
+		$settings = $this->bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.PhpProfiler');
+		if (!isset($settings['plumber']['profilePath'])) {
 			throw new \Exception('Profiling path not set');
 		}
 
-		$pathAndFilename = $this->configuration['profilePath'] . '/' . microtime(TRUE) . '.profile';
-		$run->save($pathAndFilename);
+		$run->save($settings);
 	}
 }
 ?>

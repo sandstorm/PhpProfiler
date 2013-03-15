@@ -11,11 +11,15 @@ namespace Sandstorm\PhpProfiler\Domain\Model;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\Flow\Annotations as Flow;
+
 /**
  * Empty Profiling Run; provides method stubs which do not do anything.
  *
  * This is needed such that the user can do ...getRun()->startTimer() even
  * when profiling is disabled.
+ *
+ * @Flow\Proxy(false)
  */
 class EmptyProfilingRun {
 

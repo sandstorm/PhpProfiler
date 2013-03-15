@@ -1,0 +1,18 @@
+Sandstorm:
+  PhpProfiler:
+
+    plumber:
+      profilePath: '%FLOW_PATH_DATA%Logs/Profiles'
+
+    # xhprof.io settings (see http://xhprof.io/)
+    'xhprof.io':
+      enable: false
+      dsn: 'mysql:dbname=xhprofio;host=localhost;charset=utf8'
+      username: ''
+      password: ''
+
+    # preinheimer-xhgui settings (see https://github.com/preinheimer/xhgui)
+    'xhgui':
+      enable: false
+      host: 'mongodb://localhost:27017'
+      dbname: 'xhprof'

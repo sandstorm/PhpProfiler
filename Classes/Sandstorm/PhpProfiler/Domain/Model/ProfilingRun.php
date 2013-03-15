@@ -11,10 +11,12 @@ namespace Sandstorm\PhpProfiler\Domain\Model;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use Sandstorm\Plumber\Exception;
+use TYPO3\Flow\Annotations as Flow;
 
 /**
  * Profiling run Domain Model
+ *
+ * @Flow\Proxy(false)
  */
 class ProfilingRun extends EmptyProfilingRun {
 
@@ -158,7 +160,7 @@ class ProfilingRun extends EmptyProfilingRun {
 		$this->timestamps = array();
 		$this->startTime = microtime(TRUE);
 		if (function_exists('xhprof_enable')) {
-			xhprof_enable();
+			xhprof_enable(XHPROF_FLAGS_CPU | XHPROF_FLAGS_MEMORY);
 		}
 		$this->startTimer('Profiling Run');
 	}
@@ -202,17 +204,56 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * @return void
 	 * @throws \Sandstorm\Plumber\Exception
 	 */
-	public function save($filename = NULL) {
-		if ($filename === NULL) {
-			if ($this->pathAndFilename === NULL) {
-				throw new Exception('The path and filename are not set.', 1361305872);
-			}
+	public function save(array $settings = array()) {
+		if ($this->pathAndFilename !== NULL) {
 			$filename = $this->pathAndFilename;
+		} else {
+			$filename = $settings['plumber']['profilePath'] . '/' . microtime(TRUE) . '.profile';
 		}
-		if (is_array($this->xhprofTrace)) {
+
+		if ($settings !== array() && is_array($this->xhprofTrace)) {
+			if (FLOW_SAPITYPE === 'CLI') {
+				$_SERVER['HTTP_HOST'] = 'localhost';
+				$_SERVER['REQUEST_URI'] = 'CLI run';
+				$_SERVER['REQUEST_METHOD'] = 'CLI';
+			}
+
+			if ($settings['xhprof.io']['enable']) {
+					// xhprof.io data storage
+				require_once(__DIR__ . '/../../../../../Resources/Private/Xhprof.io/data.php');
+				$pdo = new \PDO($settings['xhprof.io']['dsn'], $settings['xhprof.io']['username'], $settings['xhprof.io']['password']);
+				$xhprofData = new \ay\xhprof\Data($pdo);
+				$xhprofData->save($this->xhprofTrace);
+			}
+
+			if ($settings['xhgui']['enable']) {
+					// xhgui data storage
+				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Db.php');
+				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Db/Mapper.php');
+				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Profile.php');
+				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Profiles.php');
+				$data = array(
+					'profile' => $this->xhprofTrace,
+					'meta' => array(
+						'url' => $_SERVER['REQUEST_URI'],
+						'SERVER' => $_SERVER,
+						'get' => $_GET,
+						'env' => $_ENV,
+						'simple_url' => preg_replace('/\=\d+/', '', $_SERVER['REQUEST_URI']),
+						'request_ts' => new \MongoDate($_SERVER['REQUEST_TIME']),
+						'request_date' => date('Y-m-d', $_SERVER['REQUEST_TIME'])
+					)
+				);
+				$db = \Xhgui_Db::connect($settings['xhgui']['host'], $settings['xhgui']['dbname']);
+				$profiles = new \Xhgui_Profiles($db->results);
+				$profiles->insert($data);
+			}
+
+				// Plumber data storage
 			@file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
 			$this->xhprofTrace = $filename . '.xhprof';
 		}
+
 		@file_put_contents($filename, serialize($this));
 	}
 
