@@ -2,7 +2,7 @@
 namespace Sandstorm\PhpProfiler\Domain\Model;
 
 /*                                                                        *
- * This script belongs to the FLOW3 package "Sandstorm.PhpProfiler". *
+ * This script belongs to the TYPO3 Flow package "Sandstorm.PhpProfiler". *
  *                                                                        *
  * It is free software; you can redistribute it and/or modify it under    *
  * the terms of the GNU General Public License, either version 3 of the   *
@@ -10,7 +10,6 @@ namespace Sandstorm\PhpProfiler\Domain\Model;
  *                                                                        *
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
-
 
 /**
  * Empty Profiling Run; provides method stubs which do not do anything.
@@ -20,16 +19,46 @@ namespace Sandstorm\PhpProfiler\Domain\Model;
  */
 class EmptyProfilingRun {
 
+	/**
+	 * Set an option.
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @return void
+	 * @api
+	 */
 	public function setOption($key, $value) {
 	}
 
-	public function startTimer($name, $data = array()) {
+	/**
+	 * Start a timer
+	 *
+	 * @param string $name
+	 * @param array $data
+	 * @return void
+	 * @api
+	 */
+	public function startTimer($name, array $data = array()) {
 	}
 
+	/**
+	 * Stop a timer
+	 *
+	 * @param string $name
+	 * @return void
+	 * @api
+	 */
 	public function stopTimer($name) {
 	}
 
-	public function timestamp($name, $data = array()) {
+	/**
+	 * Record a timestamp
+	 *
+	 * @param string $name
+	 * @param array $data
+	 * @return void
+	 */
+	public function timestamp($name, array $data = array()) {
 	}
 }
 ?>
