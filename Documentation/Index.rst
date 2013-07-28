@@ -3,7 +3,7 @@ PhpProfiler -- Profiling TYPO3 Flow
 ===================================
 
 PhpProfiler is a profiling and tracing tool that measures time spent in various parts of
-your Flow and can leverage XHProf to profile applications.
+your application flow and can leverage XHProf to profile applications.
 
 It stores data in a format understood by Plumber and can also store to the databases used
 by XHProf.io (http://xhprof.io/) and XHGui (https://github.com/preinheimer/xhgui).

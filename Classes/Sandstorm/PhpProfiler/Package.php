@@ -35,34 +35,52 @@ class Package extends BasePackage {
 		}
 
 		$profiler = Profiler::getInstance();
-		$profiler->setBootstrap($bootstrap);
+		$profiler->setConfiguration('profilePath', FLOW_PATH_DATA . 'Logs/Profiles');
 
-		$profiler->start();
-		$this->connectToSignals($profiler, $bootstrap);
+		$run = $profiler->start();
+		$dispatcher = $bootstrap->getSignalSlotDispatcher();
+		$run->setOption('Context', (string)$bootstrap->getContext());
+		$this->connectToSignals($dispatcher, $profiler, $run, $bootstrap);
+		$this->connectToNeosSignals($dispatcher, $profiler, $run, $bootstrap);
 	}
 
 	/**
 	 * Wire signals to slots as needed.
 	 *
-	 * @param Dispatcher $dispatcher
+	 * @param \TYPO3\Flow\SignalSlot\Dispatcher $dispatcher
 	 * @param Profiler $profiler
-	 * @param Domain\Model\ProfilingRun $run
-	 * @param Bootstrap $bootstrap
+	 * @param \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run
+	 * @param \TYPO3\Flow\Core\Bootstrap $bootstrap
 	 * @return void
 	 */
-	protected function connectToSignals(Profiler $profiler, Bootstrap $bootstrap) {
-		$dispatcher = $bootstrap->getSignalSlotDispatcher();
-		$run = $profiler->getRun();
-		$run->setOption('Context', $bootstrap->getContext());
-
-		$dispatcher->connect('TYPO3\Flow\Core\Booting\Sequence', 'beforeInvokeStep', function(\TYPO3\Flow\Core\Booting\Step $step) use ($run) {
-			$run->startTimer('Bootstrap Sequence: ' . $step->getIdentifier());
+	protected function connectToSignals(\TYPO3\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler, \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \TYPO3\Flow\Core\Bootstrap $bootstrap) {
+		$dispatcher->connect('TYPO3\Flow\Core\Booting\Sequence', 'beforeInvokeStep', function($step) use($run) {
+			$run->startTimer('Boostrap Sequence: ' . $step->getIdentifier());
 		});
-		$dispatcher->connect('TYPO3\Flow\Core\Booting\Sequence', 'afterInvokeStep', function(\TYPO3\Flow\Core\Booting\Step $step) use ($run) {
-			$run->stopTimer('Bootstrap Sequence: ' . $step->getIdentifier());
+		$dispatcher->connect('TYPO3\Flow\Core\Booting\Sequence', 'afterInvokeStep', function($step) use($run) {
+			$run->stopTimer('Boostrap Sequence: ' . $step->getIdentifier());
 		});
 
-		$dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'beforeControllerInvocation', function($request, $response, $controller) use ($run) {
+		$dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedRuntimeRun', function() use($profiler, $bootstrap) {
+			$plumberConfiguration = $bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.Plumber');
+
+			$run = $profiler->stop();
+			if ($run && isset($plumberConfiguration['enableProfiling']) && $plumberConfiguration['enableProfiling'] === TRUE) {
+				$profiler->save($run);
+			}
+		});
+
+		$dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedCompiletimeRun', function() use($profiler, $bootstrap) {
+			$plumberConfiguration = $bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.Plumber');
+
+			$run = $profiler->stop();
+			if ($run && isset($plumberConfiguration['enableProfiling']) && $plumberConfiguration['enableProfiling'] === TRUE) {
+				$run->setOption('Context', 'COMPILE');
+				$profiler->save($run);
+			}
+		});
+
+		$dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'beforeControllerInvocation', function($request, $response, $controller) use($run) {
 			$run->setOption('Controller Name', get_class($controller));
 			$data = array(
 				'Controller' => get_class($controller)
@@ -73,24 +91,33 @@ class Package extends BasePackage {
 
 			$run->startTimer('MVC: Controller Invocation', $data);
 		});
-		$dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'afterControllerInvocation', function() use ($run) {
+		$dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'afterControllerInvocation', function() use($run) {
 			$run->stopTimer('MVC: Controller Invocation');
 		});
+	}
 
-			// stop profiling and save data
-		$dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedRuntimeRun', function() use ($profiler, $bootstrap) {
-			$run = $profiler->stop();
-			if ($run !== NULL) {
-				$run->setOption('Context', $bootstrap->getContext());
-				$profiler->save($run);
-			}
+	/**
+	 * Wire signals to slots as needed in TYPO3 Neos.
+	 *
+	 * @param \TYPO3\Flow\SignalSlot\Dispatcher $dispatcher
+	 * @param Profiler $profiler
+	 * @param \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run
+	 * @param \TYPO3\Flow\Core\Bootstrap $bootstrap
+	 * @return void
+	 */
+	protected function connectToNeosSignals(\TYPO3\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler, \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \TYPO3\Flow\Core\Bootstrap $bootstrap) {
+		$dispatcher->connect('TYPO3\TypoScript\Core\Runtime', 'beginEvaluation', function($typoScriptPath) use($run) {
+			$run->startTimer('TypoScript Runtime: ' . $typoScriptPath);
 		});
-		$dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedCompiletimeRun', function() use ($profiler, $bootstrap) {
-			$run = $profiler->stop();
-			if ($run !== NULL) {
-				$run->setOption('Context', 'COMPILE ' . $bootstrap->getContext());
-				$profiler->save($run);
-			}
+		$dispatcher->connect('TYPO3\TypoScript\Core\Runtime', 'endEvaluation', function($typoScriptPath) use($run) {
+			$run->stopTimer('TypoScript Runtime: ' . $typoScriptPath);
+		});
+
+		$dispatcher->connect('TYPO3\Neos\View\TypoScriptView', 'beginRender', function() use($run) {
+			$run->startTimer('Neos TypoScript Rendering');
+		});
+		$dispatcher->connect('TYPO3\Neos\View\TypoScriptView', 'endRender', function() use($run) {
+			$run->stopTimer('Neos TypoScript Rendering');
 		});
 	}
 
