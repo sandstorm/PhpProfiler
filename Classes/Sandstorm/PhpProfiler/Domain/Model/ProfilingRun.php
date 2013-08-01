@@ -212,34 +212,11 @@ class ProfilingRun extends EmptyProfilingRun {
 			}
 
 			if ($settings['xhprof.io']['enable']) {
-					// xhprof.io data storage
-				require_once(__DIR__ . '/../../../../../Resources/Private/Xhprof.io/data.php');
-				$pdo = new \PDO($settings['xhprof.io']['dsn'], $settings['xhprof.io']['username'], $settings['xhprof.io']['password']);
-				$xhprofData = new \ay\xhprof\Data($pdo);
-				$xhprofData->save($this->xhprofTrace);
+				$this->saveToXhprofio($settings);
 			}
 
 			if ($settings['xhgui']['enable']) {
-					// xhgui data storage
-				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Db.php');
-				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Db/Mapper.php');
-				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Profile.php');
-				require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Profiles.php');
-				$data = array(
-					'profile' => $this->xhprofTrace,
-					'meta' => array(
-						'url' => $_SERVER['REQUEST_URI'],
-						'SERVER' => $_SERVER,
-						'get' => $_GET,
-						'env' => $_ENV,
-						'simple_url' => preg_replace('/\=\d+/', '', $_SERVER['REQUEST_URI']),
-						'request_ts' => new \MongoDate($_SERVER['REQUEST_TIME']),
-						'request_date' => date('Y-m-d', $_SERVER['REQUEST_TIME'])
-					)
-				);
-				$db = \Xhgui_Db::connect($settings['xhgui']['host'], $settings['xhgui']['dbname']);
-				$profiles = new \Xhgui_Profiles($db->results);
-				$profiles->insert($data);
+				$this->saveToXhgui($settings);
 			}
 
 			if (file_exists($settings['plumber']['profilePath'])) {
@@ -256,6 +233,47 @@ class ProfilingRun extends EmptyProfilingRun {
 			}
 		}
 
+	}
+
+	/**
+	 * xhprof.io data storage
+	 *
+	 * @param array $settings
+	 * @return void
+	 */
+	protected function saveToXhprofio(array $settings) {
+		require_once(__DIR__ . '/../../../../../Resources/Private/Xhprof.io/data.php');
+		$pdo = new \PDO($settings['xhprof.io']['dsn'], $settings['xhprof.io']['username'], $settings['xhprof.io']['password']);
+		$xhprofData = new \ay\xhprof\Data($pdo);
+		$xhprofData->save($this->xhprofTrace);
+	}
+
+	/**
+	 * xhgui data storage
+	 *
+	 * @param array $settings
+	 * @return void
+	 */
+	protected function saveToXhgui(array $settings) {
+		require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Db.php');
+		require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Db/Mapper.php');
+		require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Profile.php');
+		require_once(__DIR__ . '/../../../../../Resources/Private/Xhgui/Profiles.php');
+		$data = array(
+			'profile' => $this->xhprofTrace,
+			'meta' => array(
+				'url' => $_SERVER['REQUEST_URI'],
+				'SERVER' => $_SERVER,
+				'get' => $_GET,
+				'env' => $_ENV,
+				'simple_url' => preg_replace('/\=\d+/', '', $_SERVER['REQUEST_URI']),
+				'request_ts' => new \MongoDate($_SERVER['REQUEST_TIME']),
+				'request_date' => date('Y-m-d', $_SERVER['REQUEST_TIME'])
+			)
+		);
+		$db = \Xhgui_Db::connect($settings['xhgui']['host'], $settings['xhgui']['dbname']);
+		$profiles = new \Xhgui_Profiles($db->results);
+		$profiles->insert($data);
 	}
 
 	/**
