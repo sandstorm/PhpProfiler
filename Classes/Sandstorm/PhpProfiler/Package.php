@@ -30,6 +30,12 @@ class Package extends BasePackage {
 	 * @return void
 	 */
 	public function boot(Bootstrap $bootstrap) {
+		if (($samplingRate = getenv('PHPPROFILER_SAMPLINGRATE')) !== FALSE) {
+			$currentSampleValue = mt_rand() / mt_getrandmax();
+			if ($currentSampleValue > (float)$samplingRate) {
+				return;
+			}
+		}
 
 		$profiler = Profiler::getInstance();
 		$profiler->setConfigurationProvider(function() use ($bootstrap) {

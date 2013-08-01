@@ -57,6 +57,16 @@ To enable the XHProf.io and XHGui backends adjust the configuration as needed, b
 mind that any needed setup (e.g. databasae creation) needs to be done as described in the
 respective documentation.
 
+### Limiting Profiling Run Probability
+
+Using the environment variable ``PHPPROFILER_SAMPLINGRATE`` the probability of runs being
+profiled can be changed. If the variable is not set, every run will be profiled. If a float
+between 0 and 1 is given, that represents a probability between 0% and 100% for every run
+to trigger profiling.
+
+If limiting the probability to a low enough value, it is feasible to leave PhpProfiler running
+on production instances.
+
 ## Profiling Custom Code
 
 PhpProfiler collects regular XHProf data and some data specific to TYPO3 Flow, Neos and CMS.
