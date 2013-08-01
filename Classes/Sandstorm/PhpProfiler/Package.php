@@ -30,16 +30,21 @@ class Package extends BasePackage {
 	 * @return void
 	 */
 	public function boot(Bootstrap $bootstrap) {
-		if (!file_exists(FLOW_PATH_DATA . 'Logs/Profiles')) {
-			Files::createDirectoryRecursively(FLOW_PATH_DATA . 'Logs/Profiles');
-		}
 
 		$profiler = Profiler::getInstance();
-		$profiler->setConfiguration('profilePath', FLOW_PATH_DATA . 'Logs/Profiles');
+		$profiler->setConfigurationProvider(function() use ($bootstrap) {
+			$settings = $bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.PhpProfiler');
+			if (!file_exists($settings['plumber']['profilePath'])) {
+				Files::createDirectoryRecursively($settings['plumber']['profilePath']);
+			}
+
+			return $settings;
+		});
 
 		$run = $profiler->start();
-		$dispatcher = $bootstrap->getSignalSlotDispatcher();
 		$run->setOption('Context', (string)$bootstrap->getContext());
+
+		$dispatcher = $bootstrap->getSignalSlotDispatcher();
 		$this->connectToSignals($dispatcher, $profiler, $run, $bootstrap);
 		$this->connectToNeosSignals($dispatcher, $profiler, $run, $bootstrap);
 	}
@@ -62,19 +67,15 @@ class Package extends BasePackage {
 		});
 
 		$dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedRuntimeRun', function() use($profiler, $bootstrap) {
-			$plumberConfiguration = $bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.Plumber');
-
 			$run = $profiler->stop();
-			if ($run && isset($plumberConfiguration['enableProfiling']) && $plumberConfiguration['enableProfiling'] === TRUE) {
+			if ($run) {
 				$profiler->save($run);
 			}
 		});
 
 		$dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedCompiletimeRun', function() use($profiler, $bootstrap) {
-			$plumberConfiguration = $bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(\TYPO3\Flow\Configuration\ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.Plumber');
-
 			$run = $profiler->stop();
-			if ($run && isset($plumberConfiguration['enableProfiling']) && $plumberConfiguration['enableProfiling'] === TRUE) {
+			if ($run) {
 				$run->setOption('Context', 'COMPILE');
 				$profiler->save($run);
 			}

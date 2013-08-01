@@ -33,9 +33,9 @@ class Profiler {
 	protected $currentlyRunningProfilingRun;
 
 	/**
-	 * @var Bootstrap
+	 * @var \Closure
 	 */
-	protected $bootstrap;
+	protected $configurationProvider;
 
 	/**
 	 * An "empty" profiling run; which does not execute anything and
@@ -53,7 +53,7 @@ class Profiler {
 	}
 
 	/**
-	 * @return \Sandstorm\PhpProfiler\Profiler
+	 * @return Profiler
 	 * @api
 	 */
 	public static function getInstance() {
@@ -64,19 +64,24 @@ class Profiler {
 	}
 
 	/**
-	 * Set the bootstrap, needed to retrieve settings later.
+	 * Set configuration options provider for the profiler.
 	 *
-	 * @param Bootstrap $bootstrap
+	 * Must return an array with settings, the supported settings can be
+	 * seen in the Settings.yaml file.
+	 *
+	 * @param \Closure $configurationProvider
 	 * @return void
+	 * @api
 	 */
-	public function setBootstrap(Bootstrap $bootstrap) {
-		$this->bootstrap = $bootstrap;
+	public function setConfigurationProvider($configurationProvider) {
+		$this->configurationProvider = $configurationProvider;
 	}
 
 	/**
 	 * Start a profiling run and return the run instance.
 	 *
-	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun
+	 * @throws \RuntimeException
+	 * @return Domain\Model\ProfilingRun
 	 * @api
 	 */
 	public function start() {
@@ -91,7 +96,7 @@ class Profiler {
 	/**
 	 * Get the current profiling run.
 	 *
-	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun
+	 * @return Domain\Model\ProfilingRun
 	 */
 	public function getRun() {
 		if ($this->currentlyRunningProfilingRun === NULL) {
@@ -116,7 +121,7 @@ class Profiler {
 	/**
 	 * Stop a profiling run if one is running, and return it.
 	 *
-	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun the profiling run or NULL if none is running
+	 * @return Domain\Model\ProfilingRun the profiling run or NULL if none is running
 	 */
 	public function stop() {
 		if (!$this->currentlyRunningProfilingRun) {
@@ -133,15 +138,16 @@ class Profiler {
 	 * Save a profiling run.
 	 *
 	 * @param Domain\Model\ProfilingRun $run
+	 * @throws \Exception
 	 * @return void
 	 */
 	public function save(Domain\Model\ProfilingRun $run) {
-		$settings = $this->bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.PhpProfiler');
-		if (!isset($settings['plumber']['profilePath'])) {
+		$configuration = $this->configurationProvider->__invoke();
+		if (!isset($configuration['plumber']['profilePath'])) {
 			throw new \Exception('Profiling path not set');
 		}
 
-		$run->save($settings);
+		$run->save($configuration);
 	}
 }
 ?>

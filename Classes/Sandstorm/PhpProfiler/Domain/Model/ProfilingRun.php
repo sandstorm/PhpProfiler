@@ -70,7 +70,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	protected $xhprofTrace;
 
 	/**
-	 * Associative Array of Options. Options are just global metainformation
+	 * Associative Array of Options. Options are just global meta information
 	 * for the current profiling run, which can be shown in the overview
 	 * pages.
 	 *
@@ -200,17 +200,10 @@ class ProfilingRun extends EmptyProfilingRun {
 	/**
 	 * Save this profiling run to disk
 	 *
-	 * @param string $filename
+	 * @param array $settings
 	 * @return void
-	 * @throws \Sandstorm\Plumber\Exception
 	 */
 	public function save(array $settings = array()) {
-		if ($this->pathAndFilename !== NULL) {
-			$filename = $this->pathAndFilename;
-		} else {
-			$filename = $settings['plumber']['profilePath'] . '/' . microtime(TRUE) . '.profile';
-		}
-
 		if ($settings !== array() && is_array($this->xhprofTrace)) {
 			if (FLOW_SAPITYPE === 'CLI') {
 				$_SERVER['HTTP_HOST'] = 'localhost';
@@ -249,12 +242,20 @@ class ProfilingRun extends EmptyProfilingRun {
 				$profiles->insert($data);
 			}
 
-				// Plumber data storage
-			@file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
-			$this->xhprofTrace = $filename . '.xhprof';
+			if (file_exists($settings['plumber']['profilePath'])) {
+					// Plumber data storage
+				if ($this->pathAndFilename !== NULL) {
+					$filename = $this->pathAndFilename;
+				} else {
+					$filename = $settings['plumber']['profilePath'] . '/' . microtime(TRUE) . '.profile';
+				}
+				@file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
+
+				$this->xhprofTrace = $filename . '.xhprof';
+				@file_put_contents($filename, serialize($this));
+			}
 		}
 
-		@file_put_contents($filename, serialize($this));
 	}
 
 	/**
