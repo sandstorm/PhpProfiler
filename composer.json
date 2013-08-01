@@ -12,9 +12,9 @@
 		}
 	],
 	"support": {
-		"issues": "https://github.com/sandstorm/Plumber/issues",
+		"issues": "https://github.com/sandstorm/PhpProfiler/issues",
 		"irc": "irc://irc.freenode.net/typo3-flow",
-		"source": "https://github.com/sandstorm/Plumber"
+		"source": "https://github.com/sandstorm/PhpProfiler"
 	},
 	"license": "GPL-3.0+",
 	"autoload":{

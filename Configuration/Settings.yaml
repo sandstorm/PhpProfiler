@@ -1,6 +1,7 @@
 Sandstorm:
   PhpProfiler:
 
+    # Plumber settings
     plumber:
       profilePath: '%FLOW_PATH_DATA%Logs/Profiles'
 
