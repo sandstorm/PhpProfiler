@@ -11,8 +11,14 @@ namespace Sandstorm\PhpProfiler;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
+use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Core\Bootstrap;
+use TYPO3\Flow\Configuration\ConfigurationManager;
+
 /**
  * PHP Profiler
+ *
+ * @Flow\Proxy(false)
  */
 class Profiler {
 
@@ -27,9 +33,9 @@ class Profiler {
 	protected $currentlyRunningProfilingRun;
 
 	/**
-	 * @var array
+	 * @var \Closure
 	 */
-	protected $configuration = array();
+	protected $configurationProvider;
 
 	/**
 	 * An "empty" profiling run; which does not execute anything and
@@ -40,46 +46,47 @@ class Profiler {
 	protected $emptyProfilingRun;
 
 	/**
-	 * Singleton.
+	 * Set up an EmptyProfilingRun
 	 */
 	protected function __construct() {
 		$this->emptyProfilingRun = new Domain\Model\EmptyProfilingRun();
 	}
 
 	/**
-	 * @return \Sandstorm\PhpProfiler\Profiler
+	 * @return Profiler
 	 * @api
 	 */
 	public static function getInstance() {
 		if (self::$instance === NULL) {
-			self::$instance = new Profiler();
+			self::$instance = new self();
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * Set configuration options for the profiler. Currently supported
-	 * configuration options:
+	 * Set configuration options provider for the profiler.
 	 *
-	 * - profilePath: Directory where profiles are stored
+	 * Must return an array with settings, the supported settings can be
+	 * seen in the Settings.yaml file.
 	 *
-	 * @param string $key
-	 * @param string $value
+	 * @param \Closure $configurationProvider
+	 * @return void
 	 * @api
 	 */
-	public function setConfiguration($key, $value) {
-		$this->configuration[$key] = $value;
+	public function setConfigurationProvider($configurationProvider) {
+		$this->configurationProvider = $configurationProvider;
 	}
 
 	/**
 	 * Start a profiling run and return the run instance.
 	 *
-	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun
+	 * @throws \RuntimeException
+	 * @return Domain\Model\ProfilingRun
 	 * @api
 	 */
 	public function start() {
 		if ($this->currentlyRunningProfilingRun !== NULL) {
-			throw new \Exception('Profiling already started');
+			throw new \RuntimeException('Profiling already started', 1363337740);
 		}
 		$this->currentlyRunningProfilingRun = new Domain\Model\ProfilingRun();
 		$this->currentlyRunningProfilingRun->start();
@@ -89,7 +96,7 @@ class Profiler {
 	/**
 	 * Get the current profiling run.
 	 *
-	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun
+	 * @return Domain\Model\ProfilingRun
 	 */
 	public function getRun() {
 		if ($this->currentlyRunningProfilingRun === NULL) {
@@ -114,7 +121,7 @@ class Profiler {
 	/**
 	 * Stop a profiling run if one is running, and return it.
 	 *
-	 * @return \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun the profiling run or NULL if none is running
+	 * @return Domain\Model\ProfilingRun the profiling run or NULL if none is running
 	 */
 	public function stop() {
 		if (!$this->currentlyRunningProfilingRun) {
@@ -131,15 +138,16 @@ class Profiler {
 	 * Save a profiling run.
 	 *
 	 * @param Domain\Model\ProfilingRun $run
+	 * @throws \Exception
 	 * @return void
 	 */
 	public function save(Domain\Model\ProfilingRun $run) {
-		if (!isset($this->configuration['profilePath'])) {
+		$configuration = $this->configurationProvider->__invoke();
+		if (!isset($configuration['plumber']['profilePath'])) {
 			throw new \Exception('Profiling path not set');
 		}
 
-		$pathAndFilename = $this->configuration['profilePath'] . '/' . microtime(TRUE) . '.profile';
-		$run->save($pathAndFilename);
+		$run->save($configuration);
 	}
 }
 ?>
