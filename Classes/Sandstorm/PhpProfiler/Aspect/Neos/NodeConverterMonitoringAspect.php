@@ -1,5 +1,5 @@
 <?php
-namespace Sandstorm\PhpProfiler\Aspect;
+namespace Sandstorm\PhpProfiler\Aspect\Neos;
 
 /*                                                                        *
  * This script belongs to the TYPO3 Flow package "Sandstorm.Phpprofiler". *
@@ -14,24 +14,24 @@ namespace Sandstorm\PhpProfiler\Aspect;
 use TYPO3\Flow\Annotations as Flow;
 
 /**
- * Monitor how long the router::route method takes
+ * Monitor how long the node converter takes
  *
  * @Flow\Scope("singleton")
  * @Flow\Aspect
  */
-class RouterMonitoringAspect {
+class NodeConverterMonitoringAspect {
 
 	/**
 	 * Around advice
 	 *
-	 * @Flow\Around("method(TYPO3\Flow\Mvc\Routing\Router->route())")
+	 * @Flow\Around("method(TYPO3\TYPO3CR\TypeConverter\NodeConverter->convertFrom())")
 	 * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
 	 * @return array Result of the target method
 	 */
-	public function profileRouteMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
-		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('MVC: Build Request / Routing');
+	public function profileConvertFromMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
+		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('Property Mapping: Node Converter');
 		$output = $joinPoint->getAdviceChain()->proceed($joinPoint);
-		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('MVC: Build Request / Routing');
+		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('Property Mapping: Node Converter');
 		return $output;
 	}
 
