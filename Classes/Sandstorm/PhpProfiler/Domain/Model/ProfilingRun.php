@@ -219,14 +219,15 @@ class ProfilingRun extends EmptyProfilingRun {
 				$this->saveToXhgui($settings);
 			}
 		}
-		if ($settings !== array() && file_exists($settings['plumber']['profilePath'])) {
-				// Plumber data storage
-			if ($this->pathAndFilename !== NULL) {
-				$filename = $this->pathAndFilename;
-			} else {
-				$filename = $settings['plumber']['profilePath'] . '/' . microtime(TRUE) . '.profile';
-			}
 
+		$filename = NULL;
+		if ($this->pathAndFilename !== NULL) {
+			$filename = $this->pathAndFilename;
+		} elseif ($settings !== array() && file_exists($settings['plumber']['profilePath'])) {
+			$filename = $settings['plumber']['profilePath'] . '/' . microtime(TRUE) . '.profile';
+		}
+
+		if ($filename !== NULL) {
 			if (is_array($this->xhprofTrace)) {
 				@file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
 				$this->xhprofTrace = $filename . '.xhprof';
