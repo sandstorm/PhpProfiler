@@ -25,7 +25,7 @@ class ProfilerAspect {
 	 */
 	public function profileAround(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
 		$run = \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun();
-		$tag = $joinPoint->getClassName() . '::' . $joinPoint->getMethodName();
+		$tag = str_replace('\\', '_', $joinPoint->getClassName()) . ':' . $joinPoint->getMethodName();
 
 		$run->startTimer($tag);
 		$result = $joinPoint->getAdviceChain()->proceed($joinPoint);
