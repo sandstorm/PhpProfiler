@@ -470,6 +470,40 @@ class ProfilingRun extends EmptyProfilingRun
     }
 
     /**
+     * Get DB Queries. Returned is a sorted-by-time array
+     * where each array element is again an array with the following structure:
+     *
+     * 'time' => (float) Current time in seconds, with microtime precision; relative to $this->startTime
+     * 'dbQueryCount'  => (int) Number of DB queries done so far.
+     *
+     * @return array
+     */
+    public function getDbQueryCount()
+    {
+        $output = array();
+        foreach ($this->timestamps as $t) {
+            $output[] = array(
+                'time' => $t['time'],
+                'dbQueryCount' => $t['dbQueryCount']
+            );
+        }
+        foreach ($this->timers as $tmp) {
+            foreach ($tmp as $t) {
+                $output[] = array(
+                    'time' => $t['time'],
+                    'dbQueryCount' => $t['dbQueryCount']
+                );
+            }
+        }
+
+        // now, sort events by start time
+        usort($output, function ($a, $b) {
+            return (int)(1000 * $a['time'] - 1000 * $b['time']);
+        });
+        return $output;
+    }
+
+    /**
      * Get the full XHProf Trace array
      *
      * @return array
