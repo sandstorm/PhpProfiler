@@ -67,4 +67,19 @@ class TypoScriptMonitoringAspect
         return $output;
     }
 
+    /**
+     * Around advice
+     *
+     * @Flow\Around("method(TYPO3\Neos\TypoScript\AbstractMenuImplementation->evaluate())")
+     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @return array Result of the target method
+     */
+    public function profileMenuRendering(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    {
+        \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('TYPO3.Neos: TypoScript Menu Rendering');
+        $output = $joinPoint->getAdviceChain()->proceed($joinPoint);
+        \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('TYPO3.Neos: TypoScript Menu Rendering');
+        return $output;
+    }
+
 }
