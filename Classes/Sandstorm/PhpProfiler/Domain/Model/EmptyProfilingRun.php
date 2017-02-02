@@ -64,5 +64,9 @@ class EmptyProfilingRun {
 	 */
 	public function timestamp($name, array $data = array()) {
 	}
+
+    public function logSqlQuery($sql)
+    {
+    }
 }
 ?>

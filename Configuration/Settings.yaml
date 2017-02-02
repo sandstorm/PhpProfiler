@@ -17,3 +17,9 @@ Sandstorm:
       enable: false
       host: 'mongodb://localhost:27017'
       dbname: 'xhprof'
+
+TYPO3:
+  Flow:
+    persistence:
+      doctrine:
+        sqlLogger: 'Sandstorm\PhpProfiler\Sql\SqlStatementProfiler'

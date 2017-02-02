@@ -27,6 +27,11 @@ class ProfilingRun extends EmptyProfilingRun {
 	 */
 	protected $startTime;
 
+    /**
+     * @var int
+     */
+	protected $numberOfDatabaseQueries = 0;
+
 	/**
 	 * Name of the currently active Timer
 	 *
@@ -344,7 +349,8 @@ class ProfilingRun extends EmptyProfilingRun {
 			'data' => $data,
 			'start' => TRUE,
 			'mem' => memory_get_peak_usage(TRUE),
-			'parent' => $this->activeTimer
+			'parent' => $this->activeTimer,
+            'dbQueryCount' => $this->numberOfDatabaseQueries
 		);
 		$this->activeTimer = $name;
 	}
@@ -369,7 +375,8 @@ class ProfilingRun extends EmptyProfilingRun {
 		$this->timers[$name][] = array(
 			'time' => microtime(TRUE),
 			'start' => FALSE,
-			'mem' => memory_get_peak_usage(TRUE)
+			'mem' => memory_get_peak_usage(TRUE),
+            'dbQueryCount' => $this->numberOfDatabaseQueries
 		);
 	}
 
@@ -385,7 +392,8 @@ class ProfilingRun extends EmptyProfilingRun {
 			'name' => $name,
 			'time' => microtime(TRUE),
 			'data' => $data,
-			'mem' => memory_get_peak_usage(TRUE)
+			'mem' => memory_get_peak_usage(TRUE),
+            'dbQueryCount' => $this->numberOfDatabaseQueries
 		);
 	}
 
@@ -475,6 +483,7 @@ class ProfilingRun extends EmptyProfilingRun {
 	 * 'stop'  => (float) stop time in seconds, with microtime precision; relative to $this->startTime
 	 * 'name'  => (string) Name of the timer
 	 * 'data'  => (array) additional payload which has been specified in $this->startTimer()
+     * 'dbQueryCount' => (int) number of DB queries between start and end
 	 *
 	 * @param boolean $asTree Set this to true to get the timers as an Tree
 	 * @return array|NULL
@@ -498,7 +507,8 @@ class ProfilingRun extends EmptyProfilingRun {
 							'time' => $stopTime - $startTime['time'],
 							'name' => $timerName,
 							'data' => $startTime['data'],
-							'parent' => $startTime['parent']
+							'parent' => $startTime['parent'],
+                            'dbQueryCount' => (isset($timerValue['dbQueryCount']) ? ($timerValue['dbQueryCount'] - $startTime['dbQueryCount']) : 0) // very conservatively programmed, to be able to read older traces
 						);
 					}
 				}
@@ -535,6 +545,11 @@ class ProfilingRun extends EmptyProfilingRun {
 		}
 		return empty($returnArray) ? NULL : $returnArray;
 	}
+
+    public function logSqlQuery($sql)
+    {
+        $this->numberOfDatabaseQueries++;
+    }
 }
 
 ?>
