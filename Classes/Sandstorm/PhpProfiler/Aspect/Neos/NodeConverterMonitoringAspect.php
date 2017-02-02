@@ -19,22 +19,22 @@ use TYPO3\Flow\Annotations as Flow;
  * @Flow\Scope("singleton")
  * @Flow\Aspect
  */
-class NodeConverterMonitoringAspect {
+class NodeConverterMonitoringAspect
+{
 
-	/**
-	 * Around advice
-	 *
-	 * @Flow\Around("method(TYPO3\TYPO3CR\TypeConverter\NodeConverter->convertFrom())")
-	 * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
-	 * @return array Result of the target method
-	 */
-	public function profileConvertFromMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
-		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('Property Mapping: Node Converter');
-		$output = $joinPoint->getAdviceChain()->proceed($joinPoint);
-		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('Property Mapping: Node Converter');
-		return $output;
-	}
+    /**
+     * Around advice
+     *
+     * @Flow\Around("method(TYPO3\TYPO3CR\TypeConverter\NodeConverter->convertFrom())")
+     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @return array Result of the target method
+     */
+    public function profileConvertFromMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    {
+        \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('Property Mapping: Node Converter');
+        $output = $joinPoint->getAdviceChain()->proceed($joinPoint);
+        \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('Property Mapping: Node Converter');
+        return $output;
+    }
 
 }
-
-?>

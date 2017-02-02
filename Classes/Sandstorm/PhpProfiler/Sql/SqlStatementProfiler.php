@@ -14,8 +14,6 @@ namespace Sandstorm\PhpProfiler\Sql;
 use Doctrine\DBAL\Logging\SQLLogger;
 use Sandstorm\PhpProfiler\Profiler;
 use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Core\Bootstrap;
-use TYPO3\Flow\Configuration\ConfigurationManager;
 
 /**
  * PHP Profiler

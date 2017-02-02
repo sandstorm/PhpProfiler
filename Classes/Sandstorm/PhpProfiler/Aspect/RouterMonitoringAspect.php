@@ -19,22 +19,22 @@ use TYPO3\Flow\Annotations as Flow;
  * @Flow\Scope("singleton")
  * @Flow\Aspect
  */
-class RouterMonitoringAspect {
+class RouterMonitoringAspect
+{
 
-	/**
-	 * Around advice
-	 *
-	 * @Flow\Around("method(TYPO3\Flow\Mvc\Routing\Router->route())")
-	 * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
-	 * @return array Result of the target method
-	 */
-	public function profileRouteMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
-		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('MVC: Build Request / Routing');
-		$output = $joinPoint->getAdviceChain()->proceed($joinPoint);
-		\Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('MVC: Build Request / Routing');
-		return $output;
-	}
+    /**
+     * Around advice
+     *
+     * @Flow\Around("method(TYPO3\Flow\Mvc\Routing\Router->route())")
+     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @return array Result of the target method
+     */
+    public function profileRouteMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    {
+        \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('MVC: Build Request / Routing');
+        $output = $joinPoint->getAdviceChain()->proceed($joinPoint);
+        \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->stopTimer('MVC: Build Request / Routing');
+        return $output;
+    }
 
 }
-
-?>

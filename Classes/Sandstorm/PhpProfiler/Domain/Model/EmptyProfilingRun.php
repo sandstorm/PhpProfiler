@@ -21,52 +21,56 @@ use TYPO3\Flow\Annotations as Flow;
  *
  * @Flow\Proxy(false)
  */
-class EmptyProfilingRun {
+class EmptyProfilingRun
+{
 
-	/**
-	 * Set an option.
-	 *
-	 * @param string $key
-	 * @param mixed $value
-	 * @return void
-	 * @api
-	 */
-	public function setOption($key, $value) {
-	}
+    /**
+     * Set an option.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     * @api
+     */
+    public function setOption($key, $value)
+    {
+    }
 
-	/**
-	 * Start a timer
-	 *
-	 * @param string $name
-	 * @param array $data
-	 * @return void
-	 * @api
-	 */
-	public function startTimer($name, array $data = array()) {
-	}
+    /**
+     * Start a timer
+     *
+     * @param string $name
+     * @param array $data
+     * @return void
+     * @api
+     */
+    public function startTimer($name, array $data = array())
+    {
+    }
 
-	/**
-	 * Stop a timer
-	 *
-	 * @param string $name
-	 * @return void
-	 * @api
-	 */
-	public function stopTimer($name) {
-	}
+    /**
+     * Stop a timer
+     *
+     * @param string $name
+     * @return void
+     * @api
+     */
+    public function stopTimer($name)
+    {
+    }
 
-	/**
-	 * Record a timestamp
-	 *
-	 * @param string $name
-	 * @param array $data
-	 * @return void
-	 */
-	public function timestamp($name, array $data = array()) {
-	}
+    /**
+     * Record a timestamp
+     *
+     * @param string $name
+     * @param array $data
+     * @return void
+     */
+    public function timestamp($name, array $data = array())
+    {
+    }
 
     public function logSqlQuery($sql)
     {
     }
 }
-?>

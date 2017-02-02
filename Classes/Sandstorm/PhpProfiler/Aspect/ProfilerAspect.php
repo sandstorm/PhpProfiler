@@ -16,23 +16,24 @@ use TYPO3\Flow\Annotations as Flow;
 /**
  * @Flow\Aspect
  */
-class ProfilerAspect {
-	/**
-	 *
-	 * @Flow\Around("methodAnnotatedWith(Sandstorm\PhpProfiler\Annotations\Profile)")
-	 * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
-	 * @return array Result of the target method
-	 */
-	public function profileAround(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint) {
-		$run = \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun();
-		$tag = str_replace('\\', '_', $joinPoint->getClassName()) . ':' . $joinPoint->getMethodName();
+class ProfilerAspect
+{
 
-		$run->startTimer($tag);
-		$result = $joinPoint->getAdviceChain()->proceed($joinPoint);
-		$run->stopTimer($tag);
+    /**
+     *
+     * @Flow\Around("methodAnnotatedWith(Sandstorm\PhpProfiler\Annotations\Profile)")
+     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @return array Result of the target method
+     */
+    public function profileAround(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    {
+        $run = \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun();
+        $tag = str_replace('\\', '_', $joinPoint->getClassName()) . ':' . $joinPoint->getMethodName();
 
-		return $result;
-	}
+        $run->startTimer($tag);
+        $result = $joinPoint->getAdviceChain()->proceed($joinPoint);
+        $run->stopTimer($tag);
+
+        return $result;
+    }
 }
-
-?>
