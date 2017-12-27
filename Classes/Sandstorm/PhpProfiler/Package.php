@@ -11,11 +11,11 @@ namespace Sandstorm\PhpProfiler;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Package\Package as BasePackage;
-use TYPO3\Flow\Core\Bootstrap;
-use TYPO3\Flow\Utility\Files;
-use TYPO3\Flow\Configuration\ConfigurationManager;
-use TYPO3\Flow\SignalSlot\Dispatcher;
+use Neos\Flow\Package\Package as BasePackage;
+use Neos\Flow\Core\Bootstrap;
+use Neos\Flow\Utility\Files;
+use Neos\Flow\Configuration\ConfigurationManager;
+use Neos\Flow\SignalSlot\Dispatcher;
 
 /**
  * TYPO3 Flow package bootstrap
@@ -41,7 +41,7 @@ class Package extends BasePackage
         $profiler = Profiler::getInstance();
         $profiler->setConfigurationProvider(function () use ($bootstrap) {
             $settings =
-                $bootstrap->getEarlyInstance('TYPO3\Flow\Configuration\ConfigurationManager')
+                $bootstrap->getEarlyInstance('Neos\Flow\Configuration\ConfigurationManager')
                     ->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Sandstorm.PhpProfiler');
             if (!file_exists($settings['plumber']['profilePath'])) {
                 Files::createDirectoryRecursively($settings['plumber']['profilePath']);
@@ -61,30 +61,30 @@ class Package extends BasePackage
     /**
      * Wire signals to slots as needed.
      *
-     * @param \TYPO3\Flow\SignalSlot\Dispatcher $dispatcher
+     * @param \Neos\Flow\SignalSlot\Dispatcher $dispatcher
      * @param Profiler $profiler
      * @param \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run
-     * @param \TYPO3\Flow\Core\Bootstrap $bootstrap
+     * @param \Neos\Flow\Core\Bootstrap $bootstrap
      * @return void
      */
-    protected function connectToSignals(\TYPO3\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler,
-                                        \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \TYPO3\Flow\Core\Bootstrap $bootstrap)
+    protected function connectToSignals(\Neos\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler,
+                                        \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \Neos\Flow\Core\Bootstrap $bootstrap)
     {
-        $dispatcher->connect('TYPO3\Flow\Core\Booting\Sequence', 'beforeInvokeStep', function ($step) use ($run) {
+        $dispatcher->connect('Neos\Flow\Core\Booting\Sequence', 'beforeInvokeStep', function ($step) use ($run) {
             $run->startTimer('Boostrap Sequence: ' . $step->getIdentifier());
         });
-        $dispatcher->connect('TYPO3\Flow\Core\Booting\Sequence', 'afterInvokeStep', function ($step) use ($run) {
+        $dispatcher->connect('Neos\Flow\Core\Booting\Sequence', 'afterInvokeStep', function ($step) use ($run) {
             $run->stopTimer('Boostrap Sequence: ' . $step->getIdentifier());
         });
 
-        $dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedRuntimeRun', function () use ($profiler, $bootstrap) {
+        $dispatcher->connect('Neos\Flow\Core\Bootstrap', 'finishedRuntimeRun', function () use ($profiler, $bootstrap) {
             $run = $profiler->stop();
             if ($run) {
                 $profiler->save($run);
             }
         });
 
-        $dispatcher->connect('TYPO3\Flow\Core\Bootstrap', 'finishedCompiletimeRun', function () use ($profiler, $bootstrap) {
+        $dispatcher->connect('Neos\Flow\Core\Bootstrap', 'finishedCompiletimeRun', function () use ($profiler, $bootstrap) {
             $run = $profiler->stop();
             if ($run) {
                 $run->setOption('Context', 'COMPILE');
@@ -92,18 +92,18 @@ class Package extends BasePackage
             }
         });
 
-        $dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'beforeControllerInvocation', function ($request, $response, $controller) use ($run) {
+        $dispatcher->connect('Neos\Flow\Mvc\Dispatcher', 'beforeControllerInvocation', function ($request, $response, $controller) use ($run) {
             $run->setOption('Controller Name', get_class($controller));
             $data = array(
                 'Controller' => get_class($controller)
             );
-            if ($request instanceof \TYPO3\Flow\Mvc\ActionRequest) {
+            if ($request instanceof \Neos\Flow\Mvc\ActionRequest) {
                 $data['Action'] = $request->getControllerActionName();
             }
 
             $run->startTimer('MVC: Controller Invocation', $data);
         });
-        $dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'afterControllerInvocation', function () use ($run) {
+        $dispatcher->connect('Neos\Flow\Mvc\Dispatcher', 'afterControllerInvocation', function () use ($run) {
             $run->stopTimer('MVC: Controller Invocation');
         });
     }
@@ -111,14 +111,14 @@ class Package extends BasePackage
     /**
      * Wire signals to slots as needed in TYPO3 Neos.
      *
-     * @param \TYPO3\Flow\SignalSlot\Dispatcher $dispatcher
+     * @param \Neos\Flow\SignalSlot\Dispatcher $dispatcher
      * @param Profiler $profiler
      * @param \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run
-     * @param \TYPO3\Flow\Core\Bootstrap $bootstrap
+     * @param \Neos\Flow\Core\Bootstrap $bootstrap
      * @return void
      */
-    protected function connectToNeosSignals(\TYPO3\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler,
-                                            \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \TYPO3\Flow\Core\Bootstrap $bootstrap)
+    protected function connectToNeosSignals(\Neos\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler,
+                                            \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \Neos\Flow\Core\Bootstrap $bootstrap)
     {
         $dispatcher->connect('TYPO3\TypoScript\Core\Runtime', 'beginEvaluation', function ($typoScriptPath) use ($run) {
             $run->startTimer('TypoScript Runtime: ' . $typoScriptPath);

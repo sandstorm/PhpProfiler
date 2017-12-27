@@ -11,7 +11,7 @@ namespace Sandstorm\PhpProfiler\Aspect;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Monitor how long the router::route method takes
@@ -25,11 +25,11 @@ class RouterMonitoringAspect
     /**
      * Around advice
      *
-     * @Flow\Around("method(TYPO3\Flow\Mvc\Routing\Router->route())")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @Flow\Around("method(Neos\Flow\Mvc\Routing\Router->route())")
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileRouteMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileRouteMethod(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('MVC: Build Request / Routing');
         $output = $joinPoint->getAdviceChain()->proceed($joinPoint);

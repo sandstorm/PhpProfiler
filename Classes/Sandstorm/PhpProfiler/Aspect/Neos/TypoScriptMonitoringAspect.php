@@ -11,7 +11,7 @@ namespace Sandstorm\PhpProfiler\Aspect\Neos;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Monitor TypoScript execution times
@@ -26,10 +26,10 @@ class TypoScriptMonitoringAspect
      * Around advice
      *
      * @Flow\Around("method(TYPO3\Neos\View\TypoScriptView->render())")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileRenderMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileRenderMethod(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('TYPO3.Neos: TypoScript View');
         $output = $joinPoint->getAdviceChain()->proceed($joinPoint);
@@ -41,10 +41,10 @@ class TypoScriptMonitoringAspect
      * Around advice
      *
      * @Flow\Around("method(TYPO3\Neos\Domain\Service\TypoScriptService->createRuntime())")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileTypoScriptCompilation(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileTypoScriptCompilation(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('TYPO3.Neos: TypoScript Compilation');
         $output = $joinPoint->getAdviceChain()->proceed($joinPoint);
@@ -56,10 +56,10 @@ class TypoScriptMonitoringAspect
      * Around advice
      *
      * @Flow\Around("method(TYPO3\TypoScript\TypoScriptObjects\TemplateImplementation->evaluate())")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileTemplateImplementationEvaluate(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileTemplateImplementationEvaluate(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('TYPO3.Neos: TypoScript Template Rendering');
         $output = $joinPoint->getAdviceChain()->proceed($joinPoint);
@@ -71,10 +71,10 @@ class TypoScriptMonitoringAspect
      * Around advice
      *
      * @Flow\Around("method(TYPO3\Neos\TypoScript\AbstractMenuImplementation->evaluate())")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileMenuRendering(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileMenuRendering(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('TYPO3.Neos: TypoScript Menu Rendering');
         $output = $joinPoint->getAdviceChain()->proceed($joinPoint);

@@ -11,7 +11,7 @@ namespace Sandstorm\PhpProfiler\Aspect\Neos;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Monitor how long the node converter takes
@@ -26,10 +26,10 @@ class NodeConverterMonitoringAspect
      * Around advice
      *
      * @Flow\Around("method(TYPO3\TYPO3CR\TypeConverter\NodeConverter->convertFrom())")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileConvertFromMethod(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileConvertFromMethod(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun()->startTimer('Property Mapping: Node Converter');
         $output = $joinPoint->getAdviceChain()->proceed($joinPoint);

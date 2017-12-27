@@ -11,7 +11,7 @@ namespace Sandstorm\PhpProfiler\Aspect;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * @Flow\Aspect
@@ -22,10 +22,10 @@ class ProfilerAspect
     /**
      *
      * @Flow\Around("methodAnnotatedWith(Sandstorm\PhpProfiler\Annotations\Profile)")
-     * @param \TYPO3\Flow\Aop\JoinPointInterface $joinPoint The current join point
+     * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
-    public function profileAround(\TYPO3\Flow\Aop\JoinPointInterface $joinPoint)
+    public function profileAround(\Neos\Flow\Aop\JoinPointInterface $joinPoint)
     {
         $run = \Sandstorm\PhpProfiler\Profiler::getInstance()->getRun();
         $tag = str_replace('\\', '_', $joinPoint->getClassName()) . ':' . $joinPoint->getMethodName();

@@ -11,9 +11,9 @@ namespace Sandstorm\PhpProfiler;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Core\Bootstrap;
-use TYPO3\Flow\Configuration\ConfigurationManager;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Core\Bootstrap;
+use Neos\Flow\Configuration\ConfigurationManager;
 
 /**
  * PHP Profiler
