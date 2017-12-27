@@ -1,4 +1,4 @@
-# PhpProfiler -- Profiling TYPO3 Flow, Neos and CMS
+# PhpProfiler -- Profiling Neos Flow Applications
 
 -- Measuring the flow of your application --
 
