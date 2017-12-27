@@ -55,7 +55,7 @@ class TypoScriptMonitoringAspect
     /**
      * Around advice
      *
-     * @Flow\Around("method(TYPO3\TypoScript\TypoScriptObjects\TemplateImplementation->evaluate())")
+     * @Flow\Around("method(Neos\Fusion\TypoScriptObjects\TemplateImplementation->evaluate())")
      * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */

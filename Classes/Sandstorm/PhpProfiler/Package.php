@@ -120,10 +120,10 @@ class Package extends BasePackage
     protected function connectToNeosSignals(\Neos\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler,
                                             \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \Neos\Flow\Core\Bootstrap $bootstrap)
     {
-        $dispatcher->connect('TYPO3\TypoScript\Core\Runtime', 'beginEvaluation', function ($typoScriptPath) use ($run) {
+        $dispatcher->connect('Neos\Fusion\Core\Runtime', 'beginEvaluation', function ($typoScriptPath) use ($run) {
             $run->startTimer('TypoScript Runtime: ' . $typoScriptPath);
         });
-        $dispatcher->connect('TYPO3\TypoScript\Core\Runtime', 'endEvaluation', function ($typoScriptPath) use ($run) {
+        $dispatcher->connect('Neos\Fusion\Core\Runtime', 'endEvaluation', function ($typoScriptPath) use ($run) {
             $run->stopTimer('TypoScript Runtime: ' . $typoScriptPath);
         });
 
