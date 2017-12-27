@@ -40,7 +40,7 @@ class TypoScriptMonitoringAspect
     /**
      * Around advice
      *
-     * @Flow\Around("method(Neos\Neos\Domain\Service\TypoScriptService->createRuntime())")
+     * @Flow\Around("method(Neos\Neos\Domain\Service\FusionService->createRuntime())")
      * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
