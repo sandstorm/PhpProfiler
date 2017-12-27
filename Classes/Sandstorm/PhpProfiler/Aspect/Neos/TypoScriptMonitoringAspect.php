@@ -70,7 +70,7 @@ class TypoScriptMonitoringAspect
     /**
      * Around advice
      *
-     * @Flow\Around("method(Neos\Neos\TypoScript\AbstractMenuImplementation->evaluate())")
+     * @Flow\Around("method(Neos\Neos\Fusion\AbstractMenuImplementation->evaluate())")
      * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
