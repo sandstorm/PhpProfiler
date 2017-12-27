@@ -13,22 +13,10 @@ by XHProf.io (http://xhprof.io/) and XHGui (https://github.com/preinheimer/xhgui
 To install, just use composer:
 
 ```bash
-composer require --dev sandstorm/phpprofiler 1.1.*
+composer require --dev sandstorm/phpprofiler ^3.0.0
 ```
 
 The system will automatically install PhpProfiler and use XHProf if it is installed.
-
-Then, add the the following to the global `Routes.yaml` of your distribution:
-
-```yaml
--
-  name: 'SandstormPlumber'
-  uriPattern: 'profiler/<SandstormPlumberSubroutes>'
-  subRoutes:
-    SandstormPlumberSubroutes:
-      package: Sandstorm.Plumber
-```
-
 
 ## Configuration
 
