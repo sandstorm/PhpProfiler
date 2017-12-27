@@ -25,7 +25,7 @@ class NodeConverterMonitoringAspect
     /**
      * Around advice
      *
-     * @Flow\Around("method(TYPO3\TYPO3CR\TypeConverter\NodeConverter->convertFrom())")
+     * @Flow\Around("method(Neos\ContentRepository\TypeConverter\NodeConverter->convertFrom())")
      * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */
