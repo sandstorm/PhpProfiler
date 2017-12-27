@@ -11,7 +11,7 @@ namespace Sandstorm\PhpProfiler\Sql;
  * The TYPO3 project - inspiring people to share!                         *
  *                                                                        */
 
-use Doctrine\DBAL\Logging\SQLLogger;
+use Neos\Flow\Persistence\Doctrine\Logging\SqlLogger;
 use Sandstorm\PhpProfiler\Profiler;
 use Neos\Flow\Annotations as Flow;
 
@@ -20,7 +20,7 @@ use Neos\Flow\Annotations as Flow;
  *
  * @Flow\Proxy(false)
  */
-class SqlStatementProfiler implements SQLLogger {
+class SqlStatementProfiler extends SQLLogger {
 
     /**
      * Logs a SQL statement somewhere.
