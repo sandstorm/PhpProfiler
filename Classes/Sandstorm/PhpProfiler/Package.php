@@ -13,7 +13,7 @@ namespace Sandstorm\PhpProfiler;
 
 use Neos\Flow\Package\Package as BasePackage;
 use Neos\Flow\Core\Bootstrap;
-use Neos\Flow\Utility\Files;
+use Neos\Utility\Files;
 use Neos\Flow\Configuration\ConfigurationManager;
 use Neos\Flow\SignalSlot\Dispatcher;
 
