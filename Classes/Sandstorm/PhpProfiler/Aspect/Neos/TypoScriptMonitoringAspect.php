@@ -25,7 +25,7 @@ class TypoScriptMonitoringAspect
     /**
      * Around advice
      *
-     * @Flow\Around("method(Neos\Neos\View\TypoScriptView->render())")
+     * @Flow\Around("method(Neos\Neos\View\FusionView->render())")
      * @param \Neos\Flow\Aop\JoinPointInterface $joinPoint The current join point
      * @return array Result of the target method
      */

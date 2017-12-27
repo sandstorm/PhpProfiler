@@ -120,17 +120,17 @@ class Package extends BasePackage
     protected function connectToNeosSignals(\Neos\Flow\SignalSlot\Dispatcher $dispatcher, Profiler $profiler,
                                             \Sandstorm\PhpProfiler\Domain\Model\ProfilingRun $run, \Neos\Flow\Core\Bootstrap $bootstrap)
     {
-        $dispatcher->connect('Neos\Fusion\Core\Runtime', 'beginEvaluation', function ($typoScriptPath) use ($run) {
-            $run->startTimer('TypoScript Runtime: ' . $typoScriptPath);
+        $dispatcher->connect('Neos\Fusion\Core\Runtime', 'beginEvaluation', function ($fusionPath) use ($run) {
+            $run->startTimer('TypoScript Runtime: ' . $fusionPath);
         });
-        $dispatcher->connect('Neos\Fusion\Core\Runtime', 'endEvaluation', function ($typoScriptPath) use ($run) {
-            $run->stopTimer('TypoScript Runtime: ' . $typoScriptPath);
+        $dispatcher->connect('Neos\Fusion\Core\Runtime', 'endEvaluation', function ($fusionPath) use ($run) {
+            $run->stopTimer('TypoScript Runtime: ' . $fusionPath);
         });
 
-        $dispatcher->connect('Neos\Neos\View\TypoScriptView', 'beginRender', function () use ($run) {
+        $dispatcher->connect('Neos\Neos\View\FusionView', 'beginRender', function () use ($run) {
             $run->startTimer('Neos TypoScript Rendering');
         });
-        $dispatcher->connect('Neos\Neos\View\TypoScriptView', 'endRender', function () use ($run) {
+        $dispatcher->connect('Neos\Neos\View\FusionView', 'endRender', function () use ($run) {
             $run->stopTimer('Neos TypoScript Rendering');
         });
     }
