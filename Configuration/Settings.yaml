@@ -16,4 +16,9 @@ Neos:
   Flow:
     persistence:
       doctrine:
+
+        # we support two SQL profilers: the SqlStatementCountProfiler only COUNTS queries; without checking how long they are or recording
+        # the individual queries. It is faster with lower overhead than the SqlStatementProfiler.
+        #
+        # On the other hand, the SqlStatementProfiler renders the actual queries.
         sqlLogger: Sandstorm\PhpProfiler\Sql\SqlStatementProfiler

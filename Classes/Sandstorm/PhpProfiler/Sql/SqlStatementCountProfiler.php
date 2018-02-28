@@ -20,7 +20,7 @@ use Neos\Flow\Annotations as Flow;
  *
  * @Flow\Proxy(false)
  */
-class SqlStatementProfiler extends SQLLogger {
+class SqlStatementCountProfiler extends SQLLogger {
 
     /**
      * Logs a SQL statement somewhere.
@@ -33,9 +33,6 @@ class SqlStatementProfiler extends SQLLogger {
      */
     public function startQuery($sql, array $params = null, array $types = null)
     {
-        $params = $params != null ? $params : [];
-        $params['_sql'] = $sql;
-        Profiler::getInstance()->getRun()->startTimer('SQL Query', $params);
         Profiler::getInstance()->getRun()->logSqlQuery($sql);
     }
 
@@ -46,6 +43,6 @@ class SqlStatementProfiler extends SQLLogger {
      */
     public function stopQuery()
     {
-        Profiler::getInstance()->getRun()->stopTimer('SQL Query');
+        // TODO: Implement stopQuery() method.
     }
 }
