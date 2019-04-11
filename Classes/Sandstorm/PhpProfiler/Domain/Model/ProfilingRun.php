@@ -170,8 +170,8 @@ class ProfilingRun extends EmptyProfilingRun
         $this->timers = array();
         $this->timestamps = array();
         $this->startTime = microtime(TRUE);
-        if (function_exists('tideways_enable')) {
-            tideways_enable(TIDEWAYS_FLAGS_NO_SPANS | TIDEWAYS_FLAGS_CPU | TIDEWAYS_FLAGS_MEMORY);
+        if (function_exists('tideways_xhprof_enable')) {
+            tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_CPU | TIDEWAYS_XHPROF_FLAGS_MEMORY);
         }
         $this->startTimer('Profiling Run');
     }
@@ -184,8 +184,8 @@ class ProfilingRun extends EmptyProfilingRun
     public function stop()
     {
         $this->stopTimer('Profiling Run');
-        if (function_exists('tideways_disable')) {
-            $this->xhprofTrace = tideways_disable();
+        if (function_exists('tideways_xhprof_disable')) {
+            $this->xhprofTrace = tideways_xhprof_disable();
         }
 
         $this->convertTimersRelativeToStartTime();
