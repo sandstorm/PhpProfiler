@@ -12,40 +12,19 @@ namespace Sandstorm\PhpProfiler\Sql;
  *                                                                        */
 
 use Neos\Flow\Persistence\Doctrine\Logging\SqlLogger;
-use Sandstorm\PhpProfiler\Profiler;
+use Psr\Log\NullLogger;
+use Sandstorm\PhpProfiler\Aspect\SqlEntityManagerConfigurationAspect;
 use Neos\Flow\Annotations as Flow;
+use Sandstorm\PhpProfiler\Sql\Middleware\SqlProfilingMiddleware;
 
 /**
- * PHP Profiler
- *
- * @Flow\Proxy(false)
+ * WORKAROUND for Neos 8.X: MARKER CLASS -> if this class is configured as SQL logger,
+ * the {@see SqlEntityManagerConfigurationAspect} kicks in and configures the {@see SqlProfilingMiddleware}.
  */
+#[Flow\Proxy(false)]
 class SqlStatementProfiler extends SQLLogger {
 
-    /**
-     * Logs a SQL statement somewhere.
-     *
-     * @param string $sql The SQL to be executed.
-     * @param array|null $params The SQL parameters.
-     * @param array|null $types The SQL parameter types.
-     *
-     * @return void
-     */
-    public function startQuery($sql, array $params = null, array $types = null)
-    {
-        $params = $params != null ? $params : [];
-        $params['_sql'] = $sql;
-        Profiler::getInstance()->getRun()->startTimer('SQL Query', $params);
-        Profiler::getInstance()->getRun()->logSqlQuery($sql);
-    }
-
-    /**
-     * Marks the last started query as stopped. This can be used for timing of queries.
-     *
-     * @return void
-     */
-    public function stopQuery()
-    {
-        Profiler::getInstance()->getRun()->stopTimer('SQL Query');
+    public function __construct() {
+        $this->logger = new NullLogger();
     }
 }
