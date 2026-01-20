@@ -243,7 +243,7 @@ class ProfilingRun extends EmptyProfilingRun
 
         if ($filename !== NULL) {
             if (is_array($this->xhprofTrace)) {
-                @file_put_contents($filename . '.xhprof', serialize($this->xhprofTrace));
+                @file_put_contents($filename . '.xhprof', json_encode($this->xhprofTrace));
                 $this->xhprofTrace = $filename . '.xhprof';
             }
 
@@ -362,7 +362,7 @@ class ProfilingRun extends EmptyProfilingRun
         }
         $this->timers[$name][] = array(
             'time' => microtime(TRUE),
-            'data' => $data,
+            'data' => json_encode($data),
             'start' => TRUE,
             'mem' => memory_get_peak_usage(TRUE),
             'parent' => $this->activeTimer,
@@ -409,7 +409,7 @@ class ProfilingRun extends EmptyProfilingRun
         $this->timestamps[] = array(
             'name' => $name,
             'time' => microtime(TRUE),
-            'data' => $data,
+            'data' => json_encode($data),
             'mem' => memory_get_peak_usage(TRUE),
             'dbQueryCount' => $this->numberOfDatabaseQueries
         );
